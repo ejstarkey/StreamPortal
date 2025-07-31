@@ -45,6 +45,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (mixerLink) {
       mixerLink.classList.add("active-page");
     }
+  } else if (currentPath === "/analytics") {
+    const analyticsLink = document.querySelector('#menu-dropdown a[href="/analytics"]');
+    if (analyticsLink) {
+      analyticsLink.classList.add("active-page");
+    }
   } else if (currentPath === "/preview_scenes") {
     const previewLink = document.querySelector('#menu-dropdown a[href="/preview_scenes"]');
     if (previewLink) {

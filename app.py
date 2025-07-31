@@ -29,10 +29,29 @@ import socket
 import platform
 import shutil
 from youtube_api import create_youtube_stream
+from datetime import datetime
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from io import BytesIO
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from flask import send_file
+
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+
+
 
 OBS_HOST = "localhost"
 OBS_PORT = 4455
 OBS_PASSWORD = "B0wl1ng2025!"
+TOKEN_FILE = '/home/cornerpins/portal/token.json'
+CREDENTIALS_FILE = '/home/cornerpins/portal/credentials.json'
 
 from overlays import overlays_bp
 
@@ -392,31 +411,32 @@ def dashboard():
 
     base_url = cfg.get("youtube_rtmp_base", "")
     backup_url = cfg.get("youtube_backup_url", "")
-
-    # Get audio devices with both labels and pulse_names
     audio_devices = get_audio_devices_list()
 
     if request.method == "POST":
-
         logger.warning("💥 RAW FORM DATA: %s", dict(request.form))
         logger.info("Processing dashboard form submission")
-        cfg["youtube_rtmp_base"] = request.form.get("youtube_rtmp_base", "").strip()
-        cfg["youtube_backup_url"] = request.form.get("youtube_backup_url", "").strip()
-        # Always load event_name before any stream creation logic
+        
+        # Load event name FIRST
+        event_name = "Unnamed Event"
         try:
             with open("event_data.json", "r", encoding="utf-8") as f:
                 events = json.load(f)
-            current_event = events[-1] if events else {}
-            event_name = current_event.get("event_name", "Unnamed Event")
+            if events:
+                event_name = events[-1].get("event_name", "Unnamed Event")
             logger.info(f"[DEBUG] Loaded event name for stream creation: {event_name}")
         except Exception as e:
             logger.error(f"[FATAL] Could not load event_name from event_data.json: {e}")
             event_name = "Unnamed Event"
+        
+        cfg["youtube_rtmp_base"] = request.form.get("youtube_rtmp_base", "").strip()
+        cfg["youtube_backup_url"] = request.form.get("youtube_backup_url", "").strip()
 
-        # Create a mapping of labels to pulse_names
         device_mappings = {dev["label"]: dev.get("pulse_name", dev["id"]) for dev in audio_devices}
 
         any_enabled = False
+        enabled_pairs = []
+        
         for i, pair in enumerate(lane_pairs):
             prefix = f"lane{i}"
             pair["enabled"] = request.form.get(f"{prefix}_enabled") == "on"
@@ -424,13 +444,11 @@ def dashboard():
             if pair["enabled"]:
                 any_enabled = True
                 
-                # Process non-stream fields first
                 pair["src_type"] = request.form.get(f"{prefix}_src_type", "rtsp")
                 pair["camera_rtsp"] = request.form.get(f"{prefix}_camera_rtsp", "").strip()
                 pair["local_src"] = request.form.get(f"{prefix}_local_src", "").strip()
                 pair["scoring_type"] = request.form.get(f"{prefix}_scoring_type", "").strip()
                 
-                # Only populate state/centre if livescores is selected
                 if pair["scoring_type"] == "livescores":
                     pair["state"] = request.form.get(f"{prefix}_state", "").strip()
                     pair["centre"] = request.form.get(f"{prefix}_centre", "").strip()
@@ -441,13 +459,12 @@ def dashboard():
                 pair["odd_lane_scoring_source"] = request.form.get(f"{prefix}_odd_lane_src", "").strip()
                 pair["even_lane_scoring_source"] = request.form.get(f"{prefix}_even_lane_src", "").strip()
                 
-                # Check autocreate BEFORE processing stream fields
                 pair["autocreate"] = request.form.get(f"{prefix}_autocreate") == "on"
                 
-                # ===== YOUTUBE STREAM CREATION LOGIC =====
                 if pair["autocreate"]:
                     logger.info(f"[AutoCreate] Creating stream for {pair['name']}")
                     try:
+                        from youtube_api import create_youtube_stream
                         stream_result = create_youtube_stream(event_name, pair["name"])
                         logger.info(f"[AutoCreate] Result from YouTube API: {stream_result}")
                         if stream_result:
@@ -458,12 +475,12 @@ def dashboard():
                             logger.error(f"[AutoCreate] FAILED: create_youtube_stream returned None for {pair['name']}")
                     except Exception as e:
                         logger.error(f"[AutoCreate] EXCEPTION: {e}")
+                        import traceback
+                        logger.error(traceback.format_exc())
                 else:
-                    # Manual mode - use form values
                     form_stream_key = request.form.get(f"{prefix}_stream_key", "").strip()
                     form_youtube_id = request.form.get(f"{prefix}_youtube_live_id", "").strip()
                     
-                    # Only update if form values are different from existing (user made changes)
                     current_stream_key = pair.get("stream_key", "")
                     current_youtube_id = pair.get("youtube_live_id", "")
                     
@@ -475,30 +492,25 @@ def dashboard():
                         pair["youtube_live_id"] = form_youtube_id
                         logger.info(f"[Manual] Updated youtube_live_id for {pair['name']}: {form_youtube_id}")
                     
-                    # If no changes detected, keep existing values (persistence)
                     if form_stream_key == current_stream_key and form_youtube_id == current_youtube_id:
                         logger.info(f"[Manual] Preserving existing values for {pair['name']}")
                 
-                # Process other fields
                 try:
                     delay_val = int(request.form.get(f"{prefix}_video_delay_ms", 0))
                     pair["video_delay_ms"] = max(0, min(delay_val, 60000))
                 except ValueError:
                     pair["video_delay_ms"] = 0
 
-                # Pin cam settings
                 pair["pin_cam"]["enabled"] = request.form.get(f"{prefix}_enable_pin_cam") == "on"
                 pair["pin_cam"]["type"] = request.form.get(f"{prefix}_pin_cam_type", "rtsp")
                 pair["pin_cam"]["rtsp"] = request.form.get(f"{prefix}_pin_rtsp", "").strip()
                 pair["pin_cam"]["local"] = request.form.get(f"{prefix}_pin_local", "").strip() if pair["pin_cam"]["enabled"] else ""
 
-                # Player cam settings
                 pair["player_cam"]["enabled"] = request.form.get(f"{prefix}_enable_player_cam") == "on"
                 pair["player_cam"]["type"] = request.form.get(f"{prefix}_player_cam_type", "rtsp")
                 pair["player_cam"]["rtsp"] = request.form.get(f"{prefix}_player_rtsp", "").strip()
                 pair["player_cam"]["local"] = request.form.get(f"{prefix}_player_local", "").strip() if pair["player_cam"]["enabled"] else ""
 
-                # Process audio streams
                 audio_streams = []
                 for audio_idx in range(10):
                     key = f"{prefix}_audio_streams_{audio_idx}"
@@ -509,14 +521,14 @@ def dashboard():
                         pulse_name = device_mappings.get(label, label)
                         audio_streams.append({"label": label, "pulse_name": pulse_name, "friendly_name": friendly_name})
                 pair["audio_streams"] = audio_streams
+                
+                enabled_pairs.append(pair)
             else:
-                # Disabled pair - clear values
                 pair["local_src"] = ""
                 pair["pin_cam"]["local"] = ""
                 pair["player_cam"]["local"] = ""
                 pair["audio_streams"] = []
 
-        # Process livescores after all pairs are processed
         for pair in lane_pairs:
             if pair.get("enabled") and pair.get("scoring_type") == "livescores":
                 try:
@@ -528,7 +540,6 @@ def dashboard():
                 except Exception as e:
                     logger.error(f"Failed to fetch Livescores series for {pair['name']}: {e}")
 
-        # Save the configuration
         config_to_save = {
             "youtube_rtmp_base": cfg["youtube_rtmp_base"],
             "youtube_backup_url": cfg["youtube_backup_url"],
@@ -538,27 +549,22 @@ def dashboard():
             config_to_save["event_banner_url"] = cfg["event_banner_url"]
         save_config(config_to_save)
 
-# Track changed scenes
         scenes_to_update = []
         scenes_to_remove = []
         
-        # Check for scenes that need removal (disabled)
         for pair in lane_pairs:
             pair_name = pair.get("name")
             prefix = f"lane{lane_pairs.index(pair)}"
             new_enabled = request.form.get(f"{prefix}_enabled") == "on"
             
-            # If previously enabled but now disabled
             if pair.get("enabled", False) and not new_enabled:
                 scenes_to_remove.append(pair_name)
                 logger.info(f"Scene {pair_name} will be removed (disabled)")
         
-        # Check for scenes that need updating
         for i, pair in enumerate(lane_pairs):
             prefix = f"lane{i}"
             new_enabled = request.form.get(f"{prefix}_enabled") == "on"
             
-            # If newly enabled or settings changed
             if new_enabled and (not pair.get("enabled", False) or 
                                pair.get("camera_rtsp") != request.form.get(f"{prefix}_camera_rtsp", "").strip() or
                                pair.get("local_src") != request.form.get(f"{prefix}_local_src", "").strip() or
@@ -566,7 +572,6 @@ def dashboard():
                 scenes_to_update.append(pair["name"])
                 logger.info(f"Scene {pair['name']} needs update")
         
-        # Remove disabled scenes first
         if scenes_to_remove:
             try:
                 ws = obsws(OBS_HOST, OBS_PORT, OBS_PASSWORD)
@@ -583,7 +588,6 @@ def dashboard():
             except Exception as e:
                 logger.error(f"Failed to connect to OBS for scene removal: {e}")
         
-        # Update changed scenes
         try:
             if scenes_to_update:
                 scene_list = ",".join(scenes_to_update)
@@ -607,6 +611,117 @@ def dashboard():
         except Exception as e:
             logger.error(f"Unexpected error during OBS setup: {e}")
             flash(f"Unexpected error: {e}", "danger")
+
+        # Configure Multi-RTMP AFTER everything is saved
+        if any_enabled and enabled_pairs:
+            try:
+                ws = obsws(OBS_HOST, OBS_PORT, OBS_PASSWORD)
+                ws.connect()
+                
+                vendor_name = "obs-multi-rtmp"
+                rtmp_base_url = cfg.get("youtube_rtmp_base", "rtmp://a.rtmp.youtube.com/live2")
+                
+                try:
+                    resp = ws.call(obs_requests.CallVendorRequest(
+                        vendorName=vendor_name,
+                        requestType="GetOutputs",
+                        requestData={}
+                    ))
+                    
+                    existing_outputs = resp.getRequestResponse().get("outputs", [])
+                    logger.info(f"🧹 Found {len(existing_outputs)} existing outputs to clear")
+                    
+                    for output in existing_outputs:
+                        try:
+                            output_name = output.get("name", "Unknown")
+                            ws.call(obs_requests.CallVendorRequest(
+                                vendorName=vendor_name,
+                                requestType="RemoveOutput",
+                                requestData={"name": output_name}
+                            ))
+                            logger.info(f"  Removed: {output_name}")
+                        except Exception as e:
+                            logger.warning(f"  Failed to remove {output_name}: {e}")
+                except Exception as e:
+                    logger.warning(f"Failed to clear outputs: {e}")
+
+                success_count = 0
+                for pair in enabled_pairs:
+                    pair_name = pair["name"]
+                    stream_key = ""
+                    
+                    if pair.get("autocreate"):
+                        if pair.get("youtube_live_id") and pair.get("stream_key"):
+                            stream_key = pair["stream_key"]
+                            logger.info(f"  🤖 Using AutoCreate key for {pair_name}")
+                    else:
+                        stream_key = pair.get("stream_key", "").strip()
+                        if stream_key:
+                            logger.info(f"  ✋ Using Manual key for {pair_name}")
+
+                    if not stream_key:
+                        logger.warning(f"  ⏭️ Skipping {pair_name} - no stream key available")
+                        continue
+
+                    output_name = f"Pair {pair_name}"
+                    
+                    try:
+                        logger.info(f"  📤 Adding output: {output_name}")
+                        ws.call(obs_requests.CallVendorRequest(
+                            vendorName=vendor_name,
+                            requestType="AddOutput",
+                            requestData={
+                                "name": output_name,
+                                "server": rtmp_base_url,
+                                "key": stream_key
+                            }
+                        ))
+                        
+                        logger.info(f"  ⚙️ Configuring settings for: {output_name}")
+                        ws.call(obs_requests.CallVendorRequest(
+                            vendorName=vendor_name,
+                            requestType="SetOutputSettings",
+                            requestData={
+                                "name": output_name,
+                                "settings": {
+                                    "encoder": "obs_x264",
+                                    "bitrate": 6000,
+                                    "rate_control": "CBR",
+                                    "keyint_sec": 2,
+                                    "preset": "medium",
+                                    "profile": "high"
+                                }
+                            }
+                        ))
+                        
+                        logger.info(f"  ✅ Enabling output: {output_name}")
+                        ws.call(obs_requests.CallVendorRequest(
+                            vendorName=vendor_name,
+                            requestType="EnableOutput",
+                            requestData={"name": output_name}
+                        ))
+                        
+                        success_count += 1
+                        logger.info(f"  ✅ SUCCESS: Configured {output_name}")
+                        
+                    except Exception as e:
+                        logger.error(f"  ❌ FAILED to configure {output_name}: {e}")
+
+                try:
+                    ws.call(obs_requests.CallVendorRequest(
+                        vendorName=vendor_name,
+                        requestType="SaveConfig",
+                        requestData={}
+                    ))
+                    logger.info("💾 Multi-RTMP configuration saved")
+                except Exception as e:
+                    logger.warning(f"Save config failed (non-critical): {e}")
+
+                ws.disconnect()
+                logger.info(f"🎯 Configured {success_count} Multi-RTMP outputs")
+                
+            except Exception as e:
+                logger.error(f"Failed to configure Multi-RTMP: {e}")
 
         return redirect(url_for("dashboard"))
 
@@ -1358,7 +1473,7 @@ def regenerate_multi_rtmp():
                 requestData={}
             ))
             
-            existing_outputs = resp.datain.get("outputs", [])
+            existing_outputs = resp.getRequestResponse().get("outputs", [])
             logger.info(f"🧹 Found {len(existing_outputs)} existing outputs to clear")
             
             for output in existing_outputs:
@@ -1409,7 +1524,10 @@ def regenerate_multi_rtmp():
                     failed_pairs.append(f"{pair_name} (Manual: no key)")
 
             if not stream_key:
-                logger.warning(f"  ⏭️ Skipping {pair_name} - no stream key available")
+                msg = f"❌ SKIPPED: {pair_name} has no stream key set (autocreate={pair.get('autocreate', False)})"
+                logger.warning(msg)
+                print(msg)
+                failed_pairs.append(f"{pair_name} (Missing stream key)")
                 continue
 
             # Add output
@@ -1545,6 +1663,15 @@ def toggle_stream():
         logger.info("Connected to OBS WebSocket")
 
         if not is_streaming:
+            # Track analytics start
+            try:
+                track_response = requests.post(
+                    "http://localhost:1983/track_stream_start",
+                    cookies=request.cookies
+                )
+                logger.info(f"Analytics tracking response: {track_response.status_code}")
+            except Exception as e:
+                logger.warning(f"Failed to track analytics start: {e}")
             # ENHANCED: First ensure Multi-RTMP is configured
             try:
                 logger.info("Ensuring Multi-RTMP is configured before starting")
@@ -1555,8 +1682,8 @@ def toggle_stream():
                     requestType="GetOutputs",
                     requestData={}
                 ))
-                
-                existing_outputs = resp.datain.get("outputs", [])
+                existing_outputs = resp.getRequestResponse().get("outputs", [])
+                logger.warning(f"📡 OBS currently has {len(existing_outputs)} outputs")
                 logger.info(f"Found {len(existing_outputs)} existing Multi-RTMP outputs")
                 
                 # If no outputs or mismatched count, reconfigure
@@ -1638,12 +1765,25 @@ def toggle_stream():
                 ws.disconnect()
                 save_streaming_status(True)
                 logger.info("Multi-RTMP streaming started successfully")
+                if failed_pairs:
+                    logger.warning(f"‼️ FAILED PAIRS: {failed_pairs}")
+                    print(f"‼️ FAILED PAIRS: {failed_pairs}")
                 return jsonify({"message": "Streaming started.", "streaming": True})
             except Exception as e:
                 ws.disconnect()
                 logger.error(f"Failed to start Multi-RTMP streaming: {e}")
                 return jsonify({"error": f"Failed to start streaming: {e}", "streaming": False}), 500
         else:
+
+            # Track analytics stop
+            try:
+                track_response = requests.post(
+                    "http://localhost:1983/track_stream_stop",
+                    cookies=request.cookies
+                )
+                logger.info(f"Analytics tracking response: {track_response.status_code}")
+            except Exception as e:
+                logger.warning(f"Failed to track analytics stop: {e}")
             # Stop all Multi-RTMP streams
             try:
                 logger.info("Stopping Multi-RTMP streams")
@@ -2445,7 +2585,7 @@ def get_multi_rtmp_status():
             "outputs": []
         }), 500
 
-@app.route("/logs")
+@app.route("/logs", endpoint="logs")
 def view_logs():
     if not session.get("logged_in"):
         return redirect(url_for("login"))
@@ -2563,6 +2703,546 @@ def clear_logs(category):
             pass
     
     return jsonify({"error": "Cannot clear this log category"}), 400
+
+@app.route("/track_analytics", methods=["POST"])
+def track_analytics():
+    if not session.get("logged_in"):
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    action = request.json.get("action")  # "start" or "stop"
+    
+    # Get current event
+    with open("event_data.json", "r") as f:
+        events = json.load(f)
+    current_event = events[-1]["event_name"]
+    
+    # Get analytics from YouTube API
+    from youtube_api import get_stream_analytics
+    
+    analytics_data = []
+    cfg = load_config()
+    
+    for pair in cfg["lane_pairs"]:
+        if pair.get("enabled") and pair.get("youtube_live_id"):
+            stats = get_stream_analytics(pair["youtube_live_id"])
+            analytics_data.append({
+                "event_name": current_event,
+                "lane_pair": pair["name"],
+                "youtube_id": pair["youtube_live_id"],
+                "timestamp": datetime.now().isoformat(),
+                "action": action,
+                "views": stats.get("views", 0),
+                "concurrent": stats.get("concurrent", 0)
+            })
+    
+    # Save to file
+    with open("analytics_log.jsonl", "a") as f:
+        for entry in analytics_data:
+            f.write(json.dumps(entry) + "\n")
+    
+    return jsonify({"tracked": len(analytics_data)})
+
+# Analytics tracking when stream starts
+@app.route("/track_stream_start", methods=["POST"])
+def track_stream_start():
+    if not session.get("logged_in"):
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    try:
+        # Get current event
+        with open("event_data.json", "r") as f:
+            events = json.load(f)
+        if not events:
+            return jsonify({"error": "No active event"}), 400
+            
+        current_event = events[-1]
+        event_name = current_event["event_name"]
+        
+        # Create analytics entry
+        analytics_entry = {
+            "event_name": event_name,
+            "event_venue": current_event.get("venue", ""),
+            "event_start_date": current_event.get("event_dates_start", ""),
+            "event_end_date": current_event.get("event_dates_end", ""),
+            "stream_start": datetime.now().isoformat(),
+            "stream_end": None,
+            "lane_analytics": {}
+        }
+        
+        # Get YouTube Analytics for each lane
+        cfg = load_config()
+        for pair in cfg["lane_pairs"]:
+            if pair.get("enabled") and pair.get("youtube_live_id"):
+                try:
+                    # Get initial YouTube stats
+                    from youtube_api import get_authenticated_service
+                    youtube = get_authenticated_service()
+                    
+                    response = youtube.videos().list(
+                        part="statistics,liveStreamingDetails",
+                        id=pair["youtube_live_id"]
+                    ).execute()
+                    
+                    if response.get("items"):
+                        stats = response["items"][0].get("statistics", {})
+                        live_details = response["items"][0].get("liveStreamingDetails", {})
+                        
+                        analytics_entry["lane_analytics"][pair["name"]] = {
+                            "youtube_id": pair["youtube_live_id"],
+                            "stream_key": pair.get("stream_key", ""),
+                            "start_views": int(stats.get("viewCount", 0)),
+                            "end_views": None,
+                            "peak_concurrent": int(live_details.get("concurrentViewers", 0)),
+                            "total_watch_time": 0,
+                            "unique_viewers": 0,
+                            "timeline": [{
+                                "timestamp": datetime.now().isoformat(),
+                                "concurrent_viewers": int(live_details.get("concurrentViewers", 0))
+                            }]
+                        }
+                except Exception as e:
+                    logger.error(f"Failed to get YouTube stats for {pair['name']}: {e}")
+                    analytics_entry["lane_analytics"][pair["name"]] = {
+                        "youtube_id": pair["youtube_live_id"],
+                        "error": str(e)
+                    }
+        
+        # Save analytics entry
+        analytics_file = "stream_analytics.json"
+        
+        try:
+            with open(analytics_file, "r") as f:
+                all_analytics = json.load(f)
+        except:
+            all_analytics = []
+        
+        all_analytics.append(analytics_entry)
+        
+        with open(analytics_file, "w") as f:
+            json.dump(all_analytics, f, indent=2)
+        
+        logger.info(f"Started analytics tracking for event: {event_name}")
+        return jsonify({"success": True, "event": event_name})
+        
+    except Exception as e:
+        logger.error(f"Failed to track stream start: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/track_stream_stop", methods=["POST"])
+def track_stream_stop():
+    if not session.get("logged_in"):
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    try:
+        analytics_file = "stream_analytics.json"
+        
+        with open(analytics_file, "r") as f:
+            all_analytics = json.load(f)
+        
+        if not all_analytics:
+            return jsonify({"error": "No analytics to update"}), 400
+        
+        # Update the most recent entry
+        current_entry = all_analytics[-1]
+        current_entry["stream_end"] = datetime.now().isoformat()
+        
+        # Get final YouTube stats
+        cfg = load_config()
+        for pair in cfg["lane_pairs"]:
+            if pair.get("enabled") and pair.get("youtube_live_id"):
+                lane_name = pair["name"]
+                if lane_name in current_entry["lane_analytics"]:
+                    try:
+                        from youtube_api import get_authenticated_service
+                        youtube = get_authenticated_service()
+                        
+                        response = youtube.videos().list(
+                            part="statistics,liveStreamingDetails",
+                            id=pair["youtube_live_id"]
+                        ).execute()
+                        
+                        if response.get("items"):
+                            stats = response["items"][0].get("statistics", {})
+                            live_details = response["items"][0].get("liveStreamingDetails", {})
+                            
+                            lane_data = current_entry["lane_analytics"][lane_name]
+                            lane_data["end_views"] = int(stats.get("viewCount", 0))
+                            lane_data["peak_concurrent"] = max(
+                                lane_data.get("peak_concurrent", 0),
+                                int(live_details.get("concurrentViewers", 0))
+                            )
+                            
+                            # Calculate total views during stream
+                            start_views = lane_data.get("start_views", 0)
+                            end_views = lane_data["end_views"]
+                            lane_data["stream_views"] = end_views - start_views
+                            
+                    except Exception as e:
+                        logger.error(f"Failed to get final stats for {lane_name}: {e}")
+        
+        with open(analytics_file, "w") as f:
+            json.dump(all_analytics, f, indent=2)
+        
+        logger.info("Stopped analytics tracking")
+        return jsonify({"success": True})
+        
+    except Exception as e:
+        logger.error(f"Failed to track stream stop: {e}")
+        return jsonify({"error": str(e)}), 500
+
+# Analytics page
+@app.route("/analytics")
+def analytics():
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
+    
+    try:
+        with open("stream_analytics.json", "r") as f:
+            all_analytics = json.load(f)
+    except:
+        all_analytics = []
+    
+    # Group by event
+    events_summary = []
+    for entry in all_analytics:
+        if entry.get("stream_end"):  # Only show completed streams
+            total_views = 0
+            peak_concurrent = 0
+            
+            for lane, data in entry.get("lane_analytics", {}).items():
+                if "error" not in data:
+                    total_views += data.get("stream_views", 0)
+                    peak_concurrent = max(peak_concurrent, data.get("peak_concurrent", 0))
+            
+            events_summary.append({
+                "event_name": entry["event_name"],
+                "venue": entry.get("event_venue", ""),
+                "start_date": entry.get("event_start_date", ""),
+                "end_date": entry.get("event_end_date", ""),
+                "stream_start": entry["stream_start"],
+                "stream_end": entry["stream_end"],
+                "total_views": total_views,
+                "peak_concurrent": peak_concurrent,
+                "lane_count": len(entry.get("lane_analytics", {}))
+            })
+    
+    return render_template("analytics.html", 
+                         logged_in=True,
+                         events=events_summary)
+
+# Generate PDF report
+@app.route("/analytics/pdf/<event_name>")
+def analytics_pdf(event_name):
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
+    
+    try:
+        with open("stream_analytics.json", "r") as f:
+            all_analytics = json.load(f)
+        
+        # Find the event
+        event_data = None
+        for entry in all_analytics:
+            if entry["event_name"] == event_name:
+                event_data = entry
+                break
+        
+        if not event_data:
+            return "Event not found", 404
+        
+        # Create PDF
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=0.5*inch)
+        story = []
+        styles = getSampleStyleSheet()
+        
+        # Title
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=24,
+            textColor=colors.HexColor('#1a73e8'),
+            spaceAfter=30,
+            alignment=1  # Center
+        )
+        story.append(Paragraph(f"Streaming Analytics Report", title_style))
+        story.append(Spacer(1, 0.2*inch))
+        
+        # Event info
+        event_info = [
+            ["Event Name:", event_data["event_name"]],
+            ["Venue:", event_data.get("event_venue", "N/A")],
+            ["Event Dates:", f"{event_data.get('event_start_date', '')} - {event_data.get('event_end_date', '')}"],
+            ["Stream Period:", f"{event_data['stream_start'][:16]} - {event_data.get('stream_end', 'Ongoing')[:16]}"],
+            ["Total Lanes:", str(len(event_data.get("lane_analytics", {})))]
+        ]
+        
+        info_table = Table(event_info, colWidths=[2*inch, 4*inch])
+        info_table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 12),
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ]))
+        story.append(info_table)
+        story.append(Spacer(1, 0.3*inch))
+        
+        # Summary stats
+        total_views = 0
+        peak_concurrent = 0
+        lane_stats = []
+        
+        for lane, data in event_data.get("lane_analytics", {}).items():
+            if "error" not in data:
+                stream_views = data.get("stream_views", 0)
+                total_views += stream_views
+                peak_concurrent = max(peak_concurrent, data.get("peak_concurrent", 0))
+                lane_stats.append([
+                    lane,
+                    str(stream_views),
+                    str(data.get("peak_concurrent", 0)),
+                    data.get("youtube_id", "")[:8] + "..."
+                ])
+        
+        # Summary box
+        summary_data = [
+            ["Total Views Across All Lanes:", str(total_views)],
+            ["Peak Concurrent Viewers:", str(peak_concurrent)],
+            ["Average Views per Lane:", str(total_views // len(lane_stats)) if lane_stats else "0"]
+        ]
+        
+        summary_table = Table(summary_data, colWidths=[3*inch, 2*inch])
+        summary_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#e8f0fe')),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 14),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+            ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#1a73e8')),
+        ]))
+        story.append(summary_table)
+        story.append(Spacer(1, 0.3*inch))
+        
+        # Lane details
+        story.append(Paragraph("Lane-by-Lane Performance", styles['Heading2']))
+        story.append(Spacer(1, 0.1*inch))
+        
+        lane_headers = ["Lane Pair", "Stream Views", "Peak Concurrent", "YouTube ID"]
+        lane_data = [lane_headers] + sorted(lane_stats, key=lambda x: x[0])
+        
+        lane_table = Table(lane_data, colWidths=[1.5*inch, 1.5*inch, 1.5*inch, 2*inch])
+        lane_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1a73e8')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5f5f5')])
+        ]))
+        story.append(lane_table)
+        
+        # Footer
+        story.append(Spacer(1, 0.5*inch))
+        footer_style = ParagraphStyle(
+            'Footer',
+            parent=styles['Normal'],
+            fontSize=8,
+            textColor=colors.grey,
+            alignment=1
+        )
+        story.append(Paragraph(f"Generated on {datetime.now().strftime('%Y-%m-%d %H:%M')} - CornerPins Streaming System", footer_style))
+        
+        # Build PDF
+        doc.build(story)
+        buffer.seek(0)
+        
+        filename = f"{event_name.replace(' ', '_')}_analytics.pdf"
+        return send_file(buffer, 
+                        as_attachment=True,
+                        download_name=filename,
+                        mimetype='application/pdf')
+        
+    except Exception as e:
+        logger.error(f"Failed to generate PDF: {e}")
+        return f"Error generating PDF: {str(e)}", 500
+
+@app.route("/analytics/detailed/<event_name>")
+def detailed_analytics(event_name):
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
+    
+    try:
+        with open("stream_analytics.json", "r") as f:
+            all_analytics = json.load(f)
+        
+        # Find the event
+        event_data = None
+        for entry in all_analytics:
+            if entry["event_name"] == event_name:
+                event_data = entry
+                break
+        
+        if not event_data:
+            flash("Event not found", "danger")
+            return redirect(url_for("analytics"))
+        
+        # Check if stream ended more than 2 days ago
+        from datetime import datetime, timedelta
+        if event_data.get("stream_end"):
+            stream_end = datetime.fromisoformat(event_data["stream_end"].replace("Z", "+00:00"))
+            if datetime.now() - stream_end < timedelta(days=2):
+                flash("YouTube Analytics data is not yet available. Please wait 2-3 days after stream ends for detailed metrics.", "warning")
+                return redirect(url_for("analytics"))
+        
+        # Fetch detailed analytics from YouTube Analytics API
+        detailed_data = fetch_youtube_analytics(event_data)
+        
+        return render_template("detailed_analytics.html",
+                             logged_in=True,
+                             event=event_data,
+                             analytics=detailed_data)
+        
+    except Exception as e:
+        logger.error(f"Failed to get detailed analytics: {e}")
+        flash(f"Error fetching detailed analytics: {str(e)}", "danger")
+        return redirect(url_for("analytics"))
+
+def fetch_youtube_analytics(event_data):
+    """Fetch detailed analytics from YouTube Analytics API"""
+    try:
+        from youtube_api import get_authenticated_service
+        from googleapiclient.discovery import build
+        
+        # Need to build analytics service with proper scope
+        creds = None
+        ANALYTICS_SCOPES = ['https://www.googleapis.com/auth/yt-analytics.readonly']
+        
+        # Load existing token and add analytics scope if needed
+        if os.path.exists('/home/cornerpins/portal/token.json'):
+            from google.auth.transport.requests import Request
+            from google.oauth2.credentials import Credentials
+            creds = Credentials.from_authorized_user_file(TOKEN_FILE)
+            
+            # Check if we have analytics scope
+            if 'https://www.googleapis.com/auth/yt-analytics.readonly' not in creds.scopes:
+                # Need to re-authenticate with additional scope
+                from google_auth_oauthlib.flow import InstalledAppFlow
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    CREDENTIALS_FILE, 
+                    ['https://www.googleapis.com/auth/youtube', 'https://www.googleapis.com/auth/yt-analytics.readonly']
+                )
+                creds = flow.run_console()
+                with open(TOKEN_FILE, 'w') as token:
+                    token.write(creds.to_json())
+        
+        # Build YouTube Analytics service
+        analytics = build('youtubeAnalytics', 'v2', credentials=creds)
+        youtube = build('youtube', 'v3', credentials=creds)
+        
+        # Get channel ID first
+        channels_response = youtube.channels().list(
+            part="id",
+            mine=True
+        ).execute()
+        
+        if not channels_response.get("items"):
+            raise Exception("No YouTube channel found")
+        
+        channel_id = channels_response["items"][0]["id"]
+        
+        # Calculate date range
+        stream_start = event_data["stream_start"][:10]  # YYYY-MM-DD
+        stream_end = event_data.get("stream_end", datetime.now().isoformat())[:10]
+        
+        detailed_analytics = {}
+        
+        # Fetch analytics for each lane's video
+        for lane_name, lane_data in event_data.get("lane_analytics", {}).items():
+            if "error" in lane_data or not lane_data.get("youtube_id"):
+                continue
+                
+            video_id = lane_data["youtube_id"]
+            
+            try:
+                # Get video-level analytics
+                response = analytics.reports().query(
+                    ids=f"channel=={channel_id}",
+                    startDate=stream_start,
+                    endDate=stream_end,
+                    metrics="views,estimatedMinutesWatched,averageViewDuration,subscribersGained,subscribersLost",
+                    dimensions="video",
+                    filters=f"video=={video_id}"
+                ).execute()
+                
+                if response.get("rows"):
+                    row = response["rows"][0]
+                    metrics = {
+                        "views": row[1],
+                        "watch_time_minutes": row[2],
+                        "average_view_duration_seconds": row[3],
+                        "subscribers_gained": row[4],
+                        "subscribers_lost": row[5],
+                        "net_subscribers": row[4] - row[5]
+                    }
+                else:
+                    metrics = {"error": "No data available yet"}
+                
+                # Get demographics
+                demo_response = analytics.reports().query(
+                    ids=f"channel=={channel_id}",
+                    startDate=stream_start,
+                    endDate=stream_end,
+                    metrics="viewerPercentage",
+                    dimensions="ageGroup,gender",
+                    filters=f"video=={video_id}"
+                ).execute()
+                
+                demographics = []
+                if demo_response.get("rows"):
+                    for row in demo_response["rows"]:
+                        demographics.append({
+                            "age_group": row[0],
+                            "gender": row[1],
+                            "percentage": round(row[2] * 100, 1)
+                        })
+                
+                # Get geography
+                geo_response = analytics.reports().query(
+                    ids=f"channel=={channel_id}",
+                    startDate=stream_start,
+                    endDate=stream_end,
+                    metrics="views",
+                    dimensions="country",
+                    filters=f"video=={video_id}",
+                    maxResults=10,
+                    sort="-views"
+                ).execute()
+                
+                geography = []
+                if geo_response.get("rows"):
+                    for row in geo_response["rows"]:
+                        geography.append({
+                            "country": row[0],
+                            "views": row[1]
+                        })
+                
+                detailed_analytics[lane_name] = {
+                    "metrics": metrics,
+                    "demographics": demographics,
+                    "geography": geography
+                }
+                
+            except Exception as e:
+                logger.error(f"Failed to get analytics for {lane_name}: {e}")
+                detailed_analytics[lane_name] = {"error": str(e)}
+        
+        return detailed_analytics
+        
+    except Exception as e:
+        logger.error(f"YouTube Analytics API error: {e}")
+        return {"error": str(e)}
 
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=1983, debug=False, allow_unsafe_werkzeug=True)

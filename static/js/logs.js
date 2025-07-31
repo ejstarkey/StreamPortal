@@ -40,14 +40,14 @@ if (window.location.pathname === '/logs') {
 }
 
 // Global functions that can be called from onclick handlers
-function scrollToBottom(tabName) {
+window.scrollToBottom = function(tabName) {
     const container = document.getElementById(tabName + '-log');
     if (container) {
         container.scrollTop = container.scrollHeight;
     }
 }
 
-function clearLog(category) {
+window.clearLog = function(category) {
     if (confirm('Are you sure you want to clear this log?')) {
         fetch(`/logs/clear/${category}`, {method: 'POST'})
             .then(response => response.json())
@@ -62,7 +62,7 @@ function clearLog(category) {
     }
 }
 
-function downloadLog(tabName) {
+window.downloadLog = function(tabName) {
     const container = document.getElementById(tabName + '-log');
     if (!container) return;
     

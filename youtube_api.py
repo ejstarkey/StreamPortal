@@ -8,7 +8,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-SCOPES = ['https://www.googleapis.com/auth/youtube']
+SCOPES = ['https://www.googleapis.com/auth/youtube', 'https://www.googleapis.com/auth/yt-analytics.readonly']
 CREDENTIALS_FILE = '/home/cornerpins/portal/credentials.json'
 TOKEN_FILE = '/home/cornerpins/portal/token.json'
 
@@ -26,7 +26,7 @@ def get_authenticated_service():
             else:
                 print("[YouTube] 🔐 Starting OAuth flow...")
                 flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_FILE, SCOPES)
-                creds = flow.run_console()
+                creds = flow.run_local_server(port=0)
             
             # Save refreshed/new credentials
             with open(TOKEN_FILE, 'w') as token:

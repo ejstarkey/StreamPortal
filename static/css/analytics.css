@@ -1,0 +1,27 @@
+/* Analytics page styles */
+.analytics-table td {
+    vertical-align: middle;
+}
+
+.analytics-badge {
+    font-size: 0.9em;
+    padding: 0.4em 0.8em;
+}
+
+.analytics-summary-card {
+    transition: transform 0.2s;
+}
+
+.analytics-summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.analytics-event-name {
+    font-weight: bold;
+}
+
+.analytics-dates-cell {
+    font-size: 0.85em;
+    line-height: 1.4;
+}

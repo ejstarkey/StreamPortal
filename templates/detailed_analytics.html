@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Detailed Analytics - {{ event.event_name }} - CornerPins{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analytics.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mb-4">
+                <i class="fas fa-chart-bar"></i> Detailed Analytics: {{ event.event_name }}
+            </h1>
+            
+            <div class="mb-3">
+                <a href="{{ url_for('analytics') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Analytics
+                </a>
+            </div>
+            
+            {% if analytics.error %}
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i> {{ analytics.error }}
+            </div>
+            {% else %}
+            
+            <!-- Event Summary -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Event Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Venue:</strong> {{ event.event_venue }}<br>
+                            <strong>Event Dates:</strong> {{ event.event_start_date }} - {{ event.event_end_date }}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Stream Period:</strong> {{ event.stream_start[:16] }} - {{ event.stream_end[:16] if event.stream_end else 'Ongoing' }}<br>
+                            <strong>Total Lane Pairs:</strong> {{ analytics|length }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Lane Pair Analytics -->
+            {% for lane_name, data in analytics.items() %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bowling-ball"></i> {{ lane_name }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if data.error %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-circle"></i> {{ data.error }}
+                    </div>
+                    {% else %}
+                    
+                    <!-- Key Metrics -->
+                    <div class="row mb-4">
+                        <div class="col-md-2 text-center">
+                            <h3 class="text-primary">{{ data.metrics.views }}</h3>
+                            <p class="mb-0">Views</p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h3 class="text-success">{{ (data.metrics.watch_time_minutes / 60)|round(1) }}h</h3>
+                            <p class="mb-0">Watch Time (hours)</p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h3 class="text-info">{{ (data.metrics.average_view_duration_seconds / 60)|round(1) }}m</h3>
+                            <p class="mb-0">Avg. View Duration</p>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <h3 class="text-warning">{{ data.metrics.net_subscribers }}</h3>
+                            <p class="mb-0">Net Subscribers</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <!-- Demographics -->
+                        <div class="col-md-6">
+                            <h6>Viewer Demographics</h6>
+                            {% if data.demographics %}
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Age Group</th>
+                                        <th>Gender</th>
+                                        <th>Percentage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for demo in data.demographics %}
+                                    <tr>
+                                        <td>{{ demo.age_group }}</td>
+                                        <td>{{ demo.gender|capitalize }}</td>
+                                        <td>{{ demo.percentage }}%</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                            <p class="text-muted">No demographic data available</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Geography -->
+                        <div class="col-md-6">
+                            <h6>Top Countries</h6>
+                            {% if data.geography %}
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Country</th>
+                                        <th>Views</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for geo in data.geography[:5] %}
+                                    <tr>
+                                        <td>{{ geo.country }}</td>
+                                        <td>{{ geo.views }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                            <p class="text-muted">No geographic data available</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            
+            <!-- Download Detailed Report -->
+            <div class="text-center mb-4">
+                <a href="/analytics/detailed-pdf/{{ event.event_name }}" class="btn btn-lg btn-primary">
+                    <i class="fas fa-file-pdf"></i> Download Detailed PDF Report
+                </a>
+            </div>
+            
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
