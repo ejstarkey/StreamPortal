@@ -1,0 +1,379 @@
+{
+  "youtube_rtmp_base": "rtmp://a.rtmp.youtube.com/live2",
+  "youtube_backup_url": "rtmp://b.rtmp.youtube.com/live2?backup=1",
+  "lane_pairs": [
+    {
+      "name": "1&2",
+      "enabled": false,
+      "camera_rtsp": "",
+      "local_src": "",
+      "odd_lane_scoring_source": "https://livescores.computerscore.com.au/view.php?centre=161&seriesID=18816982",
+      "even_lane_scoring_source": "https://livescores.computerscore.com.au/view.php?centre=161&seriesID=18816972",
+      "stream_key": "cce1-7dw7-1tat-3tjc-9afr",
+      "overlayA": "",
+      "overlayB": "",
+      "src_type": "rtsp",
+      "state": "qld",
+      "centre": "143",
+      "scoring_type": "livescores",
+      "audio_streams": [],
+      "pin_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "player_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "video_delay_ms": 0,
+      "youtube_live_id": "4QbVYHAxeas",
+      "autocreate": true
+    },
+    {
+      "name": "3&4",
+      "enabled": false,
+      "camera_rtsp": "",
+      "local_src": "",
+      "odd_lane_scoring_source": "https://livescores.computerscore.com.au/view.php?centre=143&seriesID=18835809",
+      "even_lane_scoring_source": "https://livescores.computerscore.com.au/view.php?centre=143&seriesID=18835810",
+      "stream_key": "u5jd-034t-t8vs-bp49-5gwd",
+      "overlayA": "",
+      "overlayB": "",
+      "src_type": "rtsp",
+      "state": "qld",
+      "centre": "143",
+      "scoring_type": "livescores",
+      "audio_streams": [],
+      "pin_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "player_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "video_delay_ms": 0,
+      "youtube_live_id": "RNQXLhwkYKY",
+      "autocreate": true
+    },
+    {
+      "name": "5&6",
+      "enabled": false,
+      "camera_rtsp": "rtsp://192.168.1.1:7447/vOvT2IEUmSTOfAe1",
+      "local_src": "",
+      "odd_lane_scoring_source": "https://livescores.computerscore.com.au/view.php?centre=161&seriesID=18816977",
+      "even_lane_scoring_source": "https://livescores.computerscore.com.au/view.php?centre=161&seriesID=18816949",
+      "stream_key": "25zg-rzus-3yyu-ad7h-3zrr",
+      "overlayA": "",
+      "overlayB": "",
+      "src_type": "rtsp",
+      "state": "qld",
+      "centre": "143",
+      "scoring_type": "livescores",
+      "audio_streams": [],
+      "pin_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "player_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "video_delay_ms": 0,
+      "youtube_live_id": "sLNBCW4NwGQ",
+      "autocreate": true
+    },
+    {
+      "name": "7&8",
+      "enabled": false,
+      "camera_rtsp": "",
+      "local_src": "",
+      "odd_lane_scoring_source": "https://livescores.computerscore.com.au/view.php?centre=161&seriesID=18817659",
+      "even_lane_scoring_source": "https://livescores.computerscore.com.au/view.php?centre=161&seriesID=18816979",
+      "stream_key": "8vux-7eud-6jc1-9ysv-agbs",
+      "overlayA": "",
+      "overlayB": "",
+      "src_type": "rtsp",
+      "state": "qld",
+      "centre": "",
+      "scoring_type": "livescores",
+      "audio_streams": [],
+      "pin_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "player_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "video_delay_ms": 0,
+      "youtube_live_id": "W9r7NFYOhII",
+      "autocreate": true
+    },
+    {
+      "name": "9&10",
+      "enabled": true,
+      "camera_rtsp": "rtsp://10.0.0.",
+      "local_src": "",
+      "odd_lane_scoring_source": "http://10.0.0.238:8081/checkresults.html",
+      "even_lane_scoring_source": "http://10.0.0.238:8082/checkresults.html",
+      "stream_key": "fdkv-qxkf-begd-vvcc-c1r2",
+      "overlayA": "",
+      "overlayB": "",
+      "src_type": "rtsp",
+      "state": "",
+      "centre": "",
+      "scoring_type": "duohd",
+      "audio_streams": [],
+      "pin_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "player_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "video_delay_ms": 0,
+      "youtube_live_id": "L1Xl_VdWeEg",
+      "autocreate": true
+    },
+    {
+      "name": "11&12",
+      "enabled": true,
+      "camera_rtsp": "",
+      "local_src": "",
+      "odd_lane_scoring_source": "http://10.0.0.231:8081/checkresults.html",
+      "even_lane_scoring_source": "http://10.0.0.231:8082/checkresults.html",
+      "stream_key": "4prz-vdqd-s7cm-8wy9-0kt7",
+      "overlayA": "",
+      "overlayB": "",
+      "src_type": "rtsp",
+      "state": "",
+      "centre": "",
+      "scoring_type": "duohd",
+      "audio_streams": [],
+      "pin_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "player_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "video_delay_ms": 0,
+      "youtube_live_id": "eZ1OQDEBH80",
+      "autocreate": true
+    },
+    {
+      "name": "13&14",
+      "enabled": true,
+      "camera_rtsp": "",
+      "local_src": "",
+      "odd_lane_scoring_source": "http://10.0.0.236:8081/checkresults.html",
+      "even_lane_scoring_source": "http://10.0.0.236:8082/checkresults.html",
+      "stream_key": "9cg7-ywgz-4bjt-w1ts-f5jf",
+      "overlayA": "",
+      "overlayB": "",
+      "src_type": "rtsp",
+      "state": "",
+      "centre": "",
+      "scoring_type": "duohd",
+      "audio_streams": [],
+      "pin_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "player_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "youtube_live_id": "QXP3zzHQokk",
+      "video_delay_ms": 0,
+      "autocreate": true
+    },
+    {
+      "name": "15&16",
+      "enabled": true,
+      "camera_rtsp": "",
+      "local_src": "",
+      "odd_lane_scoring_source": "http://10.0.0.230:8081/checkresults.html",
+      "even_lane_scoring_source": "http://10.0.0.230:8082/checkresults.html",
+      "stream_key": "6dzj-yba1-a61p-be3w-3keb",
+      "overlayA": "",
+      "overlayB": "",
+      "src_type": "rtsp",
+      "state": "",
+      "centre": "",
+      "scoring_type": "duohd",
+      "audio_streams": [],
+      "pin_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "player_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "youtube_live_id": "Suciac6NptY",
+      "video_delay_ms": 0,
+      "autocreate": true
+    },
+    {
+      "name": "17&18",
+      "enabled": true,
+      "camera_rtsp": "",
+      "local_src": "",
+      "odd_lane_scoring_source": "http://10.0.0.240:8081/checkresults.html",
+      "even_lane_scoring_source": "http://10.0.0.240:8082/checkresults.html",
+      "stream_key": "8gy2-yqpt-q710-bvyf-8b8g",
+      "overlayA": "",
+      "overlayB": "",
+      "src_type": "rtsp",
+      "state": "",
+      "centre": "",
+      "scoring_type": "duohd",
+      "audio_streams": [],
+      "pin_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "player_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "youtube_live_id": "YD_Sutq9VkY",
+      "video_delay_ms": 0,
+      "autocreate": true
+    },
+    {
+      "name": "19&20",
+      "enabled": true,
+      "camera_rtsp": "",
+      "local_src": "",
+      "odd_lane_scoring_source": "http://10.0.0.239:8081/checkresults.html",
+      "even_lane_scoring_source": "http://10.0.0.239:8082/checkresults.html",
+      "stream_key": "fu06-dkd8-7h7j-9t1a-bg40",
+      "overlayA": "",
+      "overlayB": "",
+      "src_type": "rtsp",
+      "state": "",
+      "centre": "",
+      "scoring_type": "duohd",
+      "audio_streams": [],
+      "pin_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "player_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "youtube_live_id": "tFO0VTZg4WE",
+      "video_delay_ms": 0,
+      "autocreate": true
+    },
+    {
+      "name": "21&22",
+      "enabled": false,
+      "camera_rtsp": "",
+      "local_src": "",
+      "odd_lane_scoring_source": "",
+      "even_lane_scoring_source": "",
+      "stream_key": "224a-zuyx-emf0-efqt-6ta9",
+      "overlayA": "",
+      "overlayB": "",
+      "src_type": "rtsp",
+      "state": "",
+      "centre": "",
+      "scoring_type": "livescores",
+      "audio_streams": [],
+      "pin_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "player_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "youtube_live_id": "2Vsjkvl0bj4",
+      "video_delay_ms": 0,
+      "autocreate": true
+    },
+    {
+      "name": "23&24",
+      "enabled": false,
+      "camera_rtsp": "",
+      "local_src": "",
+      "odd_lane_scoring_source": "",
+      "even_lane_scoring_source": "",
+      "stream_key": "w15w-0see-hu6q-azk8-au1h",
+      "overlayA": "",
+      "overlayB": "",
+      "src_type": "rtsp",
+      "state": "",
+      "centre": "",
+      "scoring_type": "livescores",
+      "audio_streams": [],
+      "pin_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "player_cam": {
+        "enabled": false,
+        "type": "rtsp",
+        "rtsp": "",
+        "local": ""
+      },
+      "youtube_live_id": "eGqILtcFJgc",
+      "video_delay_ms": 0,
+      "autocreate": true
+    }
+  ],
+  "event_banner_url": "/static/event_banners/0f6791d4aa98419fa597aa0922faa3d2.jpg"
+}

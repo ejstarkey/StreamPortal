@@ -1,0 +1,244 @@
+/* ---------------------------------------------------------------------------------
+
+   Computer Score - Grid Master Stylesheet
+   Author: Pixel House
+   Website: www.pixel-house.com.au
+
+--------------------------------------------------------------------------------- */
+
+
+
+
+
+
+
+
+.frame-name-top { float: left; width: 100%; height: 35px; background: url(../images/foreground/plum/frame-name-top.png) no-repeat right 0; }
+
+
+.frame { float: left; width: 104px; height: 70px; background: url(../images/foreground/plum/frame-main-transparent.png) no-repeat 0 0; }
+
+
+
+.bowl-second, .bowl-third { float: left; width: 53px; height: 35px; text-align: center; background: url(../images/foreground/plum/bowl-second.png) no-repeat 0 0; text-shadow: none; color: #000; }
+.bowl-second .spare { color: #000; text-indent: -5000px; text-shadow: none; background: url(../images/foreground/plum/icon-spare.png) no-repeat center center; float: left; width: 100%; }
+.bowl-third .spare { color: #000; text-indent: -5000px; text-shadow: none; background: url(../images/foreground/blue/icon-spare.png) no-repeat center center; float: left; width: 100%; }
+
+.bowl-first .split { background: url(../images/foreground/plum/icon-split.png) no-repeat center center; float: left; width: 100%; }
+
+
+.point-right { background: url(../images/foreground/plum/arrow-right.png) no-repeat center 8px; }
+.point-left { background: url(../images/foreground/plum/arrow-left.png) no-repeat center 8px; }
+.bowl-arrow.point-right { background: url(../images/foreground/plum/arrow-right-frame.png) no-repeat 8px 8px; }
+.bowl-arrow.point-left { background: url(../images/foreground/plum/arrow-left-frame.png) no-repeat 8px 8px; }
+
+
+
+.frame.final .bowl-second { background: url(../images/foreground/plum/bowl-second-final.png) no-repeat 0 0; width: 37px; float: left; }
+.frame.final .bowl-third { width: 32px; padding: 0 2px 0 0; background: url(../images/foreground/plum/bowl-second-final.png) no-repeat right 0; }
+
+
+.player-total { float: left; width: 104px; height: 70px; background: url(../images/foreground/plum/player-total.png); }
+
+
+.lane-first { float: left; width: 197px; height: 35px; background: url(../images/foreground/plum/lane-total-first.png) no-repeat 0 0; text-align: right; padding-right: 10px; }
+.lane-frame, .lane-last { float: left; width: 96px; height: 33px; font-size: 28px; padding: 2px 8px 0 0; background: url(../images/foreground/plum/lane-total-frame-transparent.png) no-repeat 0 0; text-align: right; }
+.lane-last { background: url(../images/foreground/plum/lane-total-last.png) no-repeat 0 0!important; color: #000; /* Important to overwrite colored lane last frame */ }
+
+
+
+/* ---------------------------------------------------------------------------------
+   RESIZE FOR LARGE FRAMES
+--------------------------------------------------------------------------------- */
+
+.large-frames #players-wrap .frame-name { height: 96px; background: url(../images/foreground/plum/frame-name-lg.png) no-repeat 0 0; }
+.large-frames #players-wrap .frame { height: 96px; background: url(../images/foreground/plum/frame-main-transparent-lg.png) no-repeat 0 0; }
+.large-frames #players-wrap .player-total { height: 96px; background: url(../images/foreground/plum/player-total-lg.png); }
+
+.large-frames #players-wrap .bowl-second, .large-frames #players-wrap .bowl-third { height: 48px; background: url(../images/foreground/plum/bowl-second-lg.png) no-repeat 0 0; }
+
+.large-frames #players-wrap .point-right { background: url(../images/foreground/plum/arrow-lg-right.png) no-repeat 10px 14px; height: 42px; }
+.large-frames #players-wrap .point-left { background: url(../images/foreground/plum/arrow-lg-left.png) no-repeat 8px 14px; height: 42px; }
+.large-frames #players-wrap .bowl-arrow.point-right { background: url(../images/foreground/plum/active-arrow-lg-right.png) no-repeat 10px 15px; }
+.large-frames #players-wrap .bowl-arrow.point-left { background: url(../images/foreground/plum/active-arrow-lg-left.png) no-repeat 8px 15px; }
+
+
+.bowl-first .point { position: absolute; top: 30px; left: 20px; width: 29px; height: 34px; background: url(../images/foreground/plum/point-left.png) no-repeat 0 0; }
+.bowl-second .point { position: absolute; top: 25px; left: -10px; width: 29px; height: 34px; background: url(../images/foreground/plum/point-right.png) no-repeat 0 0; }
+.bowl-third .point { position: absolute; top: 25px; left: -10px; width: 29px; height: 34px; background: url(../images/foreground/plum/point-right.png) no-repeat 0 0; }
+
+
+.large-frames #players-wrap .frame-name-top { height: 48px; background: url(../images/foreground/plum/frame-name-top-lg.png) no-repeat right 0; }
+
+.large-frames #players-wrap .frame.final .bowl-second { background: url(../images/foreground/plum/bowl-second-final-lg.png) no-repeat 0 0; width: 37px; float: left; }
+.large-frames #players-wrap .frame.final .bowl-third { padding: 0 2px 0 0; background: url(../images/foreground/plum/bowl-second-final-lg.png) no-repeat right 0; }
+
+.large-frames #players-wrap .bowl-first .split { background: url(../images/foreground/blue/icon-split-lg.png) no-repeat center 2px; }
+
+.large-frames #players-wrap .bowl-second .spare { background: url(../images/foreground/blue/icon-spare-lg.png) no-repeat center center; }
+.large-frames #players-wrap .bowl-third .spare { background: url(../images/foreground/blue/icon-spare-lg.png) no-repeat center center; }
+
+/* ---------------------------------------------------------------------------------
+   ACTIVE PLAYER STYLES
+--------------------------------------------------------------------------------- */
+.active.player { background: url(../images/foreground/plum/active-shadow.png) no-repeat 0 0; padding: 11px 0; margin: -15px 0 -16px 0; z-index: 200; }
+
+.active .frame-name { width: 215px; height: 79px; background: url(../images/foreground/plum/active-frame-name.png) no-repeat 0 0; margin-left: 0px; }
+.active .frame-name-top { background: url(../images/foreground/plum/active-frame-name-top.png) no-repeat right 0; padding-top: 3px; padding-bottom: 3px; }
+
+.active .frame { height: 79px; background: url(../images/foreground/plum/active-frame-main.png) no-repeat 0 0; }
+.active .frame.ready { background: url(../images/foreground/plum/active-frame.png) no-repeat 0 0; }
+
+.active .frame.filled { background: url(../images/foreground/plum/active-frame-main-filled.png) no-repeat 0 0; }
+.active .player-total { width: 111px; height: 79px; background: url(../images/foreground/plum/active-player-total.png); }
+
+.active .bowl-second { background: url(../images/foreground/plum/active-bowl-second.png) no-repeat 0 0; }
+
+.active .frame.final .bowl-second { background: url(../images/foreground/plum/active-bowl-second-final.png) no-repeat 0 0; }
+.active .frame.final .bowl-third { background: url(../images/foreground/plum/active-bowl-second-final.png) no-repeat right 0; }
+
+.large-frames #players-wrap .active.player { background: url(../images/foreground/plum/active-shadow-lg.png) no-repeat 0 0; padding: 11px 0; margin: -15px 0 -16px 0; z-index: 200; }
+
+.large-frames #players-wrap .active .frame-name { height: 105px; background: url(../images/foreground/plum/active-frame-name-lg.png) no-repeat right 0; }
+.large-frames #players-wrap .active .frame-name-top { background: url(../images/foreground/plum/active-frame-name-top-lg.png) no-repeat right 0; height: 51px; }
+.large-frames #players-wrap .active .frame { height: 105px; background: url(../images/foreground/plum/active-frame-main-lg.png) no-repeat 0 0; }
+.large-frames #players-wrap .active .frame.ready { background: url(../images/foreground/plum/active-frame-lg.png) no-repeat 0 0; }
+.large-frames #players-wrap .active .frame.filled { background: url(../images/foreground/plum/active-frame-main-filled-lg.png) no-repeat 0 0; }
+.large-frames #players-wrap .active .player-total { height: 105px; background: url(../images/foreground/plum/active-player-total-lg.png); }
+.large-frames #players-wrap .active .bowl-second { background: url(../images/foreground/plum/active-bowl-second-lg.png) no-repeat 0 0; height: 51px; }
+.large-frames #players-wrap .active .frame.final .bowl-second { background: url(../images/foreground/plum/active-bowl-second-final-lg.png) no-repeat 0 0; height: 51px;}
+.large-frames #players-wrap .active .frame.final .bowl-third { background: url(../images/foreground/plum/active-bowl-second-final-lg.png) no-repeat right 0; height: 51px; }
+
+.large-frames #players-wrap .active .point-right { background: url(../images/foreground/plum/arrow-lg-right.png) no-repeat 10px 13px; }
+.large-frames #players-wrap .active .point-left { background: url(../images/foreground/plum/arrow-lg-left.png) no-repeat 8px 13px; }
+.large-frames #players-wrap .active .bowl-arrow.point-right { background: url(../images/foreground/plum/active-arrow-lg-right.png) no-repeat 10px 18px; }
+.large-frames #players-wrap .active .bowl-arrow.point-left { background: url(../images/foreground/plum/active-arrow-lg-left.png) no-repeat 8px 18px; }
+
+
+
+
+.active-sm .frame-name { width: 215px; background: url(../images/foreground/plum/sm-active-frame-name.png) no-repeat 0 0!important; margin-left: 0px; }
+.active-sm .frame-name-top { background: url(../images/foreground/plum/active-frame-name-top.png) no-repeat right 0; }
+.active-sm .frame { background: url(../images/foreground/plum/sm-active-frame-main.png) no-repeat 0 0; }
+.active-sm .frame.ready { background: url(../images/foreground/plum/sm-active-frame.png) no-repeat 0 0; }
+.active-sm .frame.ready .bowl-arrow { background: url(../images/foreground/plum/active-arrow.png) no-repeat 8px 8px; }
+.active-sm .frame.filled { background: url(../images/foreground/plum/sm-active-frame-main-filled.png) no-repeat 0 0!important; }
+.active-sm .player-total { width: 111px; background: url(../images/foreground/plum/sm-active-player-total.png); }
+.active-sm .frame.final .bowl-second { background: url(../images/foreground/plum/active-bowl-second-final.png) no-repeat 0 0; }
+.active-sm .frame.final .bowl-third { background: url(../images/foreground/plum/active-bowl-second-final.png) no-repeat right 0; }
+
+
+/* ---------------------------------------------------------------------------------
+--------------------------------------------------------------------------------- */
+
+
+.players-left-wrap .active .player-total { width: 121px; height: 79px; background: url(../images/foreground/plum/active-player-total-split.png); }
+.players-left-wrap .active.player { background: url(../images/foreground/plum/active-shadow-split-left.png) no-repeat -43px 0; }
+.large-frames #players-wrap .players-left-wrap .active .player-total { width: 121px; height: 105px; background: url(../images/foreground/plum/active-player-total-split-lg.png); }
+.large-frames #players-wrap .players-left-wrap .active.player { background: url(../images/foreground/plum/active-shadow-split-left-lg.png) no-repeat -43px 0; }
+
+.players-right-wrap .active.player { background: url(../images/foreground/plum/active-shadow-split-right.png) no-repeat 0 0; padding-left: 10px; margin-left: -10px!important; }
+.players-right-wrap .active .frame-name { background: url(../images/foreground/plum/active-frame-name-right.png) no-repeat 0 0!important; }
+
+
+
+/* ---------------------------------------------------------------------------------
+   COLOR SCHEMES - FOREGROUND // 
+--------------------------------------------------------------------------------- */
+
+.frame.filled { background: url(../images/foreground/plum/frame-main.png) no-repeat 0 0; }
+.frame-name { float: left; width: 207px; height: 70px; background: url(../images/foreground/plum/frame-name.png) no-repeat 0 0; margin-left: 8px; display: inline; }
+
+.lane-first { background: url(../images/foreground/plum/lane-total-first.png) no-repeat 0 0; }
+.lane-frame.filled { background: url(../images/foreground/plum/lane-total-frame.png) no-repeat 0 0; }
+
+.large-frames #players-wrap .frame.filled { background: url(../images/foreground/plum/frame-main-lg.png) no-repeat 0 0; }
+.large-frames #players-wrap .frame-name { background: url(../images/foreground/plum/frame-name-lg.png) no-repeat 0 0; }
+
+.five-frame .frame.filled { background: url(../images/foreground/plum/frame-main-5fr.png) no-repeat 0 0!important; }
+.five-frame .frame-name { background: url(../images/foreground/plum/frame-name-5fr.png) no-repeat 0 0; }
+
+.large-frames.five-frame .frame.filled { background: url(../images/foreground/plum/frame-main-lg-5fr.png) no-repeat 0 0!important; }
+.large-frames.five-frame .frame-name { background: url(../images/foreground/plum/frame-name-lg-5fr.png) no-repeat 0 0!important; }
+
+
+
+/* ---------------------------------------------------------------------------------
+   COLOR SCHEMES - SKIP PLAYER // 
+--------------------------------------------------------------------------------- */
+
+.skip .frame.filled { background: url(../images/foreground/plum/frame-main-grey.png) no-repeat 0 0; }
+.skip .frame-name { float: left; width: 207px; height: 70px; background: url(../images/foreground/plum/frame-name-grey.png) no-repeat 0 0; margin-left: 8px; display: inline; }
+
+.skip .lane-first { background: url(../images/foreground/plum/lane-total-first-grey.png) no-repeat 0 0; }
+.skip .lane-frame.filled { background: url(../images/foreground/plum/lane-total-frame-grey.png) no-repeat 0 0; }
+
+.skip .large-frames #players-wrap .frame.filled { background: url(../images/foreground/plum/frame-main-lg-grey.png) no-repeat 0 0; }
+.skip .large-frames #players-wrap .frame-name { background: url(../images/foreground/plum/frame-name-lg-grey.png) no-repeat 0 0; }
+
+.skip .five-frame .frame.filled { background: url(../images/foreground/plum/frame-main-5fr-grey.png) no-repeat 0 0!important; }
+.skip .five-frame .frame-name { background: url(../images/foreground/plum/frame-name-5fr-grey.png) no-repeat 0 0; }
+
+.skip .large-frames.five-frame .frame.filled { background: url(../images/foreground/plum/frame-main-lg-5fr-grey.png) no-repeat 0 0!important; }
+.skip .large-frames.five-frame .frame-name { background: url(../images/foreground/plum/frame-name-lg-5fr-grey.png) no-repeat 0 0!important; }
+
+
+/* ---------------------------------------------------------------------------------
+   FOREGROUND // OVERWRITES
+--------------------------------------------------------------------------------- */
+.active .frame-name { background: url(../images/foreground/plum/active-frame-name.png) no-repeat 0 0; }
+.active .frame.filled { background: url(../images/foreground/plum/active-frame-main-filled.png) no-repeat 0 0; }
+.large-frames #players-wrap .active .frame-name { background: url(../images/foreground/plum/active-frame-name-lg.png) no-repeat 0 0; }
+.large-frames #players-wrap .active .frame.filled { background: url(../images/foreground/plum/active-frame-main-filled-lg.png) no-repeat 0 0; }
+
+
+/* ---------------------------------------------------------------------------------
+   FIVE FRAME
+--------------------------------------------------------------------------------- */
+.five-frame .frame-name { width: 307px; background: url(../images/foreground/plum/frame-name-5fr.png) no-repeat 0 0; }
+.five-frame .frame { width: 174px; background: url(../images/foreground/plum/frame-main-transparent-5fr.png) no-repeat 0 0; }
+.five-frame .player-total { width: 174px; background: url(../images/foreground/plum/player-total-5fr.png); }
+
+.five-frame .bowl-second { background: url(../images/foreground/plum/bowl-second-5fr.png) no-repeat 0 0; }
+
+.five-frame .active .frame-name { background: url(../images/foreground/plum/active-frame-name-5fr.png) no-repeat right 0; width: 315px; }
+.five-frame .active .frame { background: url(../images/foreground/plum/active-frame-main-5fr.png) no-repeat 0 0; }
+.five-frame .active .frame.filled {background: url(../images/foreground/plum/active-frame-main-filled-5fr.png) no-repeat 0 0; }
+.five-frame .active .frame.ready {background: url(../images/foreground/plum/active-frame-5fr.png) no-repeat 0 0; }
+.five-frame .active .player-total { width: 181px; background: url(../images/foreground/plum/active-player-total-5fr.png); }
+
+
+/* ---------------------------------------------------------------------------------
+   FIVE FRAME // LARGE FRAMES
+--------------------------------------------------------------------------------- */
+.large-frames.five-frame .frame { background: url(../images/foreground/plum/frame-main-transparent-lg-5fr.png) no-repeat 0 0!important; }
+.large-frames.five-frame .player-total { background: url(../images/foreground/plum/player-total-lg-5fr.png)!important; }
+.large-frames.five-frame .bowl-second { background: url(../images/foreground/plum/bowl-second-lg-5fr.png) no-repeat 0 0!important; }
+
+.large-frames.five-frame .active .frame-name { background: url(../images/foreground/plum/active-frame-name-lg-5fr.png) no-repeat right 0!important; }
+.large-frames.five-frame .active .frame { background: url(../images/foreground/plum/active-frame-main-lg-5fr.png) no-repeat 0 0!important; }
+.large-frames.five-frame .active .frame.filled {background: url(../images/foreground/plum/active-frame-main-filled-lg-5fr.png) no-repeat 0 0!important; }
+.large-frames.five-frame .active .frame.ready { background: url(../images/foreground/plum/active-frame-lg-5fr.png) no-repeat 0 0!important; }
+.large-frames.five-frame .active .player-total { width: 181px; background: url(../images/foreground/plum/active-player-total-lg-5fr.png)!important; }
+
+
+/* ---------------------------------------------------------------------------------
+   FIVE FRAME COLOR SCHEMES - FOREGROUND // BLUE
+--------------------------------------------------------------------------------- */
+.five-frame .lane-first { background: url(../images/foreground/plum/lane-total-first.png) no-repeat 0 0; }
+.five-frame .lane-frame { background: url(../images/foreground/plum/lane-total-frame.png) no-repeat 0 0; }
+.five-frame .lane-last { background: url(../images/foreground/plum/lane-total-last.png) no-repeat 0 0; }
+
+.five-frame .large-frames #players-wrap .frame.filled { background: url(../images/foreground/plum/frame-main-lg.png) no-repeat 0 0; }
+.five-frame .large-frames #players-wrap .frame-name { background: url(../images/foreground/plum/frame-name-lg.png) no-repeat 0 0; }
+
+/* ---------------------------------------------------------------------------------
+   FIVE FRAME FOREGROUND // OVERWRITES
+--------------------------------------------------------------------------------- */
+
+.five-frame .active .frame-name { background: url(../images/foreground/plum/active-frame-name-5fr.png) no-repeat 0 0!important; }
+.five-frame .active .frame.filled { background: url(../images/foreground/plum/active-frame-main-filled-5fr.png) no-repeat 0 0!important; }
+.five-frame .large-frames #players-wrap .active .frame-name { background: url(../images/foreground/plum/active-frame-name-lg-5fr.png) no-repeat 0 0!important; }
+.five-frame .large-frames #players-wrap .active .frame.filled { background: url(../images/foreground/plum/active-frame-main-filled-lg-5fr.png) no-repeat 0 0!important; }
+
+

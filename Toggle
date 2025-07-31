@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Wi-Fi Toggle Help
+Comment=Instructions for switching between AP and Client Wi-Fi modes
+Exec=xdg-open /home/cornerpins/portal/README_WIFI.txt
+Icon=text-x-generic
+Terminal=false
+Type=Application
+Categories=Utility;
+

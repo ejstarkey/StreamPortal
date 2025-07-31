@@ -1,0 +1,14 @@
+[Unit]
+Description=Cornerpins Flask-SocketIO (gunicorn+eventlet)
+After=network.target
+
+[Service]
+User=cornerpins
+WorkingDirectory=/home/cornerpins/portal
+ExecStart=/home/cornerpins/portal/venv/bin/gunicorn -k eventlet -w 1 -b 0.0.0.0:1983 app:app
+Restart=always
+RestartSec=5
+Environment="PYTHONUNBUFFERED=1"
+
+[Install]
+WantedBy=multi-user.target

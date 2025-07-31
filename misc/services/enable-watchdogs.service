@@ -1,0 +1,11 @@
+[Unit]
+Description=Enable Livescore watchdog polling services
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/cornerpins/portal/enable_livescore_watchdogs.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

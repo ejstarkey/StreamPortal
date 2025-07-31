@@ -1,0 +1,75 @@
+# CornerPins Streaming & Management System Requirements
+
+# Core Flask Framework
+Flask==3.0.0
+Flask-CORS==4.0.0
+Flask-SocketIO==5.3.6
+Werkzeug==3.0.1
+
+# Async & WebSocket Support
+eventlet==0.33.3
+gevent==23.9.1
+gevent-websocket==0.10.1
+python-socketio==5.10.0
+
+# HTTP Requests & Web Communication
+requests==2.31.0
+urllib3==2.1.0
+
+# OBS WebSocket Integration
+obs-websocket-py==1.0.0
+websocket-client==1.6.4
+
+# YouTube API Integration
+google-auth==2.25.2
+google-auth-oauthlib==1.1.0
+google-auth-httplib2==0.1.1
+google-api-python-client==2.108.0
+
+# Data Processing & CSV Handling
+pandas==2.1.4
+numpy==1.26.4
+
+# HTML/XML Parsing (for overlay monitoring)
+beautifulsoup4==4.12.2
+lxml==4.9.3
+
+# JSON Lines Logging (for ad playback logs)
+jsonlines==4.0.0
+
+# File System Monitoring
+watchdog==3.0.0
+
+# Date/Time Handling
+pytz==2023.3
+
+# Configuration & Environment
+python-dotenv==1.0.0
+
+# Additional Utilities
+Pillow==10.1.0
+psutil==5.9.6
+
+# Development & Debugging (optional)
+flask-debugtoolbar==0.13.1
+
+# Security & Authentication
+cryptography==41.0.8
+PyJWT==2.8.0
+
+# Async Support
+aiohttp==3.9.1
+asyncio-mqtt==0.11.0
+
+# Database (if using SQLite/other DB)
+SQLAlchemy==2.0.23
+Flask-SQLAlchemy==3.1.1
+
+# Logging enhancements
+coloredlogs==15.0.1
+
+# Video/Streaming utilities
+opencv-python==4.8.1.78
+
+# System monitoring
+py-cpuinfo==9.0.0

@@ -1,0 +1,79 @@
+/* ---------------------------------------------------------------------------------
+
+   Computer Score - Backgrounds Stylesheet
+   Author: Pixel House
+   Website: www.pixel-house.com.au
+
+--------------------------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------------------------
+   COLOR SCHEMES - BACKGROUNDS
+--------------------------------------------------------------------------------- */
+
+.bg-orange { background: url(../images/background/bg-orange.png) no-repeat 0 0 #e58c00; }
+.bg-orange #wrapper { background: url(../images/background/bg-orange.png) no-repeat 0 0 #e58c00; }
+.bg-orange #header * { text-shadow: #7c5914 1px 1px 2px; }
+
+.bg-blue { background: url(../images/background/bg-blue.png) 0 0 #143373; } 
+/* .bg-blue #wrapper {  background: url(../images/background/bg-blue.png) no-repeat 0 0 #143373; } */
+.bg-blue #outer {  background-color: #143373; } 
+/* .bg-blue #header * { text-shadow: #000 1px 1px 2px; } */
+
+.bg-lightblue-grunge { background: url(../images/background/bg-lightblue-grunge.png) no-repeat 0 0 #6bc1ee; }
+.bg-lightblue-grunge #wrapper { background: url(../images/background/bg-lightblue-grunge.png) no-repeat 0 0 #6bc1ee; }
+.bg-lightblue-grunge #header * { text-shadow: #165c81 1px 1px 2px; }
+
+.bg-green { background: url(../images/background/bg-green.png) no-repeat 0 0 #0d420f; }
+.bg-green #wrapper { background: url(../images/background/bg-green.png) no-repeat 0 0 #0d420f; }
+.bg-green #header * { text-shadow: #032004 1px 1px 2px; }
+
+.bg-green-dark { background: url(../images/background/bg-green-dark.png) no-repeat 0 0 #236326; }
+.bg-green-dark #wrapper { background: url(../images/background/bg-green-dark.png) no-repeat 0 0 #236326; }
+.bg-green-dark #header * { text-shadow: #032004 1px 1px 2px; }
+
+.bg-green-lime { background: url(../images/background/bg-green-lime.png) no-repeat 0 0 #b6d124; }
+.bg-green-lime #wrapper { background: url(../images/background/bg-green-lime.png) no-repeat 0 0 #b6d124; }
+.bg-green-lime #header * { text-shadow: #6c851e 1px 1px 2px; color: #000; }
+
+.bg-blue-green { background: url(../images/background/bg-blue-green.png) no-repeat 0 0 #009d7e; }
+.bg-blue-green #wrapper { background: url(../images/background/bg-blue-green.png) no-repeat 0 0 #009d7e; }
+.bg-blue-green #header * { text-shadow: #006333 1px 1px 2px; }
+
+.bg-blue-dark { background: url(../images/background/bg-blue-dark.png) no-repeat 0 0 #191b28; }
+.bg-blue-dark #wrapper { background: url(../images/background/bg-blue-dark.png) no-repeat 0 0 #191b28; }
+.bg-blue-dark #header * { text-shadow: #000 1px 1px 2px; }
+
+.bg-brown { background: url(../images/background/bg-brown.png) no-repeat 0 0 #995a48; }
+.bg-brown #wrapper { background: url(../images/background/bg-brown.png) no-repeat 0 0 #995a48; }
+.bg-brown #header * { text-shadow: #652a19 1px 1px 2px; }
+
+.bg-yellow { background: url(../images/background/bg-yellow.png) no-repeat 0 0 #efd628; }
+.bg-yellow #wrapper { background: url(../images/background/bg-yellow.png) no-repeat 0 0 #efd628; }
+.bg-yellow #header * { text-shadow: #bb9e21 1px 1px 2px; color: #000; }
+
+.bg-purple { background: url(../images/background/bg-purple.png) no-repeat 0 0 #90007d; }
+.bg-purple #wrapper { background: url(../images/background/bg-purple.png) no-repeat 0 0 #90007d; }
+.bg-purple #header * { text-shadow: #032004 1px 1px 2px; }
+
+.bg-purple-grunge { background: url(../images/background/bg-purple-grunge.png) no-repeat 0 0 #90007d; }
+.bg-purple-grunge #wrapper { background: url(../images/background/bg-purple-grunge.png) no-repeat 0 0 #90007d; }
+.bg-purple-grunge #header * { text-shadow: #032004 1px 1px 2px; }
+
+.bg-pink-grunge { background: url(../images/background/bg-pink-grunge.png) no-repeat 0 0 #ff8e9a; }
+.bg-pink-grunge #wrapper { background: url(../images/background/bg-pink-grunge.png) no-repeat 0 0 #ff8e9a; }
+.bg-pink-grunge #header * { text-shadow: #c94858 1px 1px 2px; color: #000; }
+
+.bg-peach-grunge { background: url(../images/background/bg-peach-grunge.png) no-repeat 0 0 #ff3b1b; }
+.bg-peach-grunge #wrapper { background: url(../images/background/bg-peach-grunge.png) no-repeat 0 0 #ff3b1b; }
+.bg-peach-grunge #header * { text-shadow: #6f271b 1px 1px 2px; }
+
+.bg-red { background: url(../images/background/bg-red.png) no-repeat 0 0 #fff; }
+.bg-red #wrapper { background: url(../images/background/bg-red.png) no-repeat 0 0 #fff; }
+.bg-red #header * { text-shadow: #000 1px 1px 2px; }
+
+.bg-dark-grey { background: url(../images/background/bg-dark-grey.png) no-repeat 0 0 #fff; }
+.bg-dark-grey #wrapper { background: url(../images/background/bg-dark-grey.png) no-repeat 0 0 #fff; }
+.bg-dark-grey #header * { text-shadow: #000 1px 1px 2px; }
+
+
+

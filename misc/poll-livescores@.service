@@ -1,0 +1,15 @@
+
+[Unit]
+Description=Poll LiveScores Watchdog for Lane Pair %i
+After=network.target
+
+[Service]
+ExecStart=/home/cornerpins/portal/venv/bin/python3 /home/cornerpins/portal/poll_livescores.py --pair %i
+WorkingDirectory=/home/cornerpins/portal
+Restart=on-failure
+RestartSec=5s
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,687 @@
+/* /static/css/services.css */
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 10000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+}
+
+.modal-content {
+  background-color: #161616;
+  color: #eee;
+  margin: 5% auto;
+  padding: 24px;
+  width: 720px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 12px;
+  border: 1px solid #333;
+  box-shadow: 0 0 30px rgba(0, 255, 100, 0.15);
+  font-family: "Segoe UI", sans-serif;
+}
+
+.modal-content h3 {
+  color: #6f6;
+  font-size: 20px;
+  margin-bottom: 16px;
+  text-shadow: 0 0 6px #3f3;
+  text-align: center;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #aaa;
+  cursor: pointer;
+  transition: color 0.2s;
+  z-index: 10;
+}
+
+.modal-close:hover {
+  color: #fff;
+}
+
+.status-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  justify-content: center;
+}
+
+.status-tab {
+  padding: 8px 16px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background: #222;
+  color: #aaa;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.status-tab.active {
+  background: #33aa66;
+  color: #fff;
+  border-color: #55cc88;
+  box-shadow: 0 0 6px #33ff99;
+}
+
+.status-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1f1f1f;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  box-shadow: 0 0 8px rgba(0,255,100,0.08);
+}
+
+.status-label {
+  font-weight: 600;
+  color: #aaf;
+  flex: 1;
+}
+
+.status-light {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #222 inset;
+}
+
+.status-light.green {
+  background-color: #00ff66;
+  box-shadow: 0 0 10px #00ff66, 0 0 20px #00ff66 inset;
+}
+
+.status-light.red {
+  background-color: #a00;
+  animation: pulse-red 1.5s infinite ease-in-out;
+  box-shadow: 0 0 4px #600 inset;
+}
+
+@keyframes pulse-red {
+  0%, 100% {
+    box-shadow: 0 0 8px #a00, 0 0 4px #300 inset;
+  }
+  50% {
+    box-shadow: 0 0 14px #f00, 0 0 8px #400 inset;
+  }
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.service-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.service-controls button {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #fff;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.service-controls .btn-start {
+  background-color: #2c992c;
+}
+.service-controls .btn-start:hover {
+  background-color: #38c138;
+}
+
+.service-controls .btn-stop {
+  background-color: #b22222;
+}
+.service-controls .btn-stop:hover {
+  background-color: #e04141;
+}
+
+.service-controls .btn-restart {
+  background-color: #ff8800;
+}
+.service-controls .btn-restart:hover {
+  background-color: #ffaa33;
+}
+
+#system-controls {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+#system-controls button {
+  padding: 8px 16px;
+  font-weight: bold;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: #444;
+  color: #fff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.1);
+  transition: background-color 0.2s;
+}
+
+#system-controls button:hover {
+  background-color: #666;
+}
+
+/* DHCP CONFIG TABLES */
+.dhcp-reservations {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #1c1c1c;
+  border-radius: 1rem;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+}
+
+.dhcp-reservations h4 {
+  font-size: 1.2rem;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  margin-top: 1rem;
+}
+
+.dhcp-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  color: #ddd;
+  font-size: 0.9rem;
+}
+
+.dhcp-table th,
+.dhcp-table td {
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid #333;
+}
+
+.dhcp-table th {
+  background-color: #2b2b2b;
+  color: #fff;
+  font-weight: 500;
+}
+
+.dhcp-table input[type="text"] {
+  background: #111;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 0.4rem 0.6rem;
+  width: 100%;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.mac-status {
+  font-size: 1.2rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+#save-dhcp-btn,
+#restart-dhcp-btn {
+  background-color: #222;
+  border: 1px solid #444;
+  padding: 0.5rem 1rem;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#save-dhcp-btn:hover {
+  background-color: #2e7d32;
+}
+
+#restart-dhcp-btn:hover {
+  background-color: #c62828;
+}
+
+/* Adjust tab content layout */
+#tab-dhcp-content {
+  display: none;
+}
+
+.status-tab.active + #tab-dhcp-content,
+#tab-dhcp-content.active {
+  display: block;
+}
+
+.switch-label {
+  background: #111 !important;
+  color: #fff !important;
+  border: 1px solid #444 !important;
+  padding: 0.4rem 0.6rem !important;
+  width: 100% !important;
+  border-radius: 6px !important;
+  font-size: 0.9rem !important;
+}
+
+.remove-switch-btn {
+  background: #c62828;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
+  transition: background 0.2s;
+}
+
+.remove-switch-btn:hover {
+  background: #d32f2f;
+}
+
+#add-switch-btn:hover {
+  background: #388e3c;
+  transform: translateY(-1px);
+  transition: all 0.2s;
+}
+
+.nic-selectors label {
+  display: block;
+  color: #fff;
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+}
+
+.dhcp-table td:nth-child(4) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Info message styling */
+.dhcp-reservations p {
+  background: rgba(33, 150, 243, 0.1);
+  border-left: 3px solid #2196f3;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+}
+
+/* NIC Selection Row Layout */
+.nic-selection-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.nic-input-group {
+  flex: 1;
+}
+
+.nic-input-group select {
+  width: 100%;
+  padding: 0.5rem;
+  background: #111;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 6px;
+}
+
+/* DHCP Info Message */
+.dhcp-info-message {
+  color: #aaa;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  background: rgba(33, 150, 243, 0.1);
+  border-left: 3px solid #2196f3;
+  padding: 0.75rem;
+  border-radius: 4px;
+}
+
+/* Switch Header Layout */
+.switch-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1.5rem 0 1rem 0;
+}
+
+.switch-header h4 {
+  margin: 0;
+}
+
+/* Add Switch Button */
+.add-switch-button {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.add-switch-button:hover {
+  background: #388e3c;
+  transform: translateY(-1px);
+}
+
+.dhcp-control-btn {
+  background-color: #333;
+  border: 1px solid #555;
+  padding: 0.5rem 1rem;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin-right: 0.5rem;
+}
+
+.dhcp-control-btn.start:hover {
+  background-color: #2e7d32;
+}
+
+.dhcp-control-btn.stop:hover {
+  background-color: #c62828;
+}
+
+.dhcp-control-btn.stop:hover {
+  background-color: #c62828;
+}
+
+/* BOWLING ANIMATION */
+.bowling-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #aaa;
+}
+
+.bowling-lane {
+  position: relative;
+  width: 300px;
+  height: 60px;
+  background: linear-gradient(to right, #8B4513 0%, #DEB887 5%, #F5DEB3 5%, #F5DEB3 95%, #DEB887 95%, #8B4513 100%);
+  border-radius: 30px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.bowling-ball {
+  position: absolute;
+  left: -30px;
+  top: 15px;
+  width: 30px;
+  height: 30px;
+  background: radial-gradient(circle at 30% 30%, #666, #000);
+  border-radius: 50%;
+  animation: rollBall 3s ease-in-out infinite;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+  z-index: 10; /* Ball stays on top */
+}
+
+.bowling-ball::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 4px;
+  height: 4px;
+  background: #333;
+  border-radius: 50%;
+}
+
+.bowling-ball::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 3px;
+  height: 3px;
+  background: #333;
+  border-radius: 50%;
+}
+
+.bowling-pins {
+  position: absolute;
+  right: 10px;
+  top: 2.5px; /* Adjusted to center the 55px triangle in 60px lane */
+  width: 50px;
+  height: 55px;
+  z-index: 5; /* Pins below ball */
+}
+
+.pin {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 3px rgba(255,255,255,0.9);
+}
+
+/* Pin formation - properly centered equilateral triangle */
+.pin:nth-child(1) { top: 24.5px; left: 8px; }   /* Head pin - centered */
+.pin:nth-child(2) { top: 17.5px; left: 16px; }   /* Row 2 */
+.pin:nth-child(3) { top: 31.5px; left: 16px; }  
+.pin:nth-child(4) { top: 10.5px; left: 24px; }   /* Row 3 */
+.pin:nth-child(5) { top: 24.5px; left: 24px; }  
+.pin:nth-child(6) { top: 38.5px; left: 24px; }  
+.pin:nth-child(7) { top: 3.5px; left: 32px; }   /* Row 4 */
+.pin:nth-child(8) { top: 17.5px; left: 32px; }   
+.pin:nth-child(9) { top: 31.5px; left: 32px; }  
+.pin:nth-child(10) { top: 45.5px; left: 32px; }
+
+/* Individual pin animations - scatter happens earlier */
+.pin:nth-child(1) { animation: pinScatter1 3s ease-in-out infinite; }
+.pin:nth-child(2) { animation: pinScatter2 3s ease-in-out infinite; }
+.pin:nth-child(3) { animation: pinScatter3 3s ease-in-out infinite; }
+.pin:nth-child(4) { animation: pinScatter4 3s ease-in-out infinite; }
+.pin:nth-child(5) { animation: pinScatter5 3s ease-in-out infinite; }
+.pin:nth-child(6) { animation: pinScatter6 3s ease-in-out infinite; }
+.pin:nth-child(7) { animation: pinScatter7 3s ease-in-out infinite; }
+.pin:nth-child(8) { animation: pinScatter8 3s ease-in-out infinite; }
+.pin:nth-child(9) { animation: pinScatter9 3s ease-in-out infinite; }
+.pin:nth-child(10) { animation: pinScatter10 3s ease-in-out infinite; }
+
+.loading-text {
+  font-size: 16px;
+  font-weight: 600;
+  animation: loadingPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes rollBall {
+  0% {
+    left: -30px;
+    transform: rotate(0deg);
+  }
+  72% {
+    left: 260px;
+    transform: rotate(720deg);
+  }
+  77% {
+    left: 260px;
+    transform: rotate(720deg);
+  }
+  100% {
+    left: -30px;
+    transform: rotate(0deg);
+  }
+}
+
+/* Updated pin scatter animations - happen earlier when ball hits */
+@keyframes pinScatter1 {
+  0%, 40% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  60% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  65% { transform: translate(-8px, -5px) rotate(45deg); opacity: 0.8; }
+  70% { transform: translate(-12px, -8px) rotate(90deg); opacity: 0.3; }
+  100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+}
+
+@keyframes pinScatter2 {
+  0%, 40% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  60% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  65% { transform: translate(-10px, -2px) rotate(-30deg); opacity: 0.7; }
+  70% { transform: translate(-15px, -3px) rotate(-60deg); opacity: 0.3; }
+  100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+}
+
+@keyframes pinScatter3 {
+  0%, 40% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  60% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  65% { transform: translate(8px, -3px) rotate(40deg); opacity: 0.7; }
+  70% { transform: translate(12px, -5px) rotate(80deg); opacity: 0.3; }
+  100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+}
+
+@keyframes pinScatter4 {
+  0%, 40% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  60% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  65% { transform: translate(-12px, 2px) rotate(-45deg); opacity: 0.7; }
+  70% { transform: translate(-18px, 3px) rotate(-90deg); opacity: 0.3; }
+  100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+}
+
+@keyframes pinScatter5 {
+  0%, 40% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  60% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  65% { transform: translate(-5px, -8px) rotate(30deg); opacity: 0.7; }
+  70% { transform: translate(-8px, -12px) rotate(60deg); opacity: 0.3; }
+  100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+}
+
+@keyframes pinScatter6 {
+  0%, 40% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  60% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  65% { transform: translate(10px, 1px) rotate(-35deg); opacity: 0.7; }
+  70% { transform: translate(15px, 2px) rotate(-70deg); opacity: 0.3; }
+  100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+}
+
+@keyframes pinScatter7 {
+  0%, 40% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  60% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  65% { transform: translate(-15px, 5px) rotate(-50deg); opacity: 0.7; }
+  70% { transform: translate(-22px, 8px) rotate(-100deg); opacity: 0.3; }
+  100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+}
+
+@keyframes pinScatter8 {
+  0%, 40% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  60% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  65% { transform: translate(-8px, 3px) rotate(25deg); opacity: 0.7; }
+  70% { transform: translate(-12px, 5px) rotate(50deg); opacity: 0.3; }
+  100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+}
+
+@keyframes pinScatter9 {
+  0%, 40% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  60% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  65% { transform: translate(6px, 4px) rotate(-25deg); opacity: 0.7; }
+  70% { transform: translate(9px, 6px) rotate(-50deg); opacity: 0.3; }
+  100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+}
+
+@keyframes pinScatter10 {
+  0%, 40% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  60% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  65% { transform: translate(12px, 6px) rotate(-40deg); opacity: 0.7; }
+  70% { transform: translate(18px, 9px) rotate(-80deg); opacity: 0.3; }
+  100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+}
+
+@keyframes loadingPulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+    color: #6f6;
+  }
+}
+
+/* EMERGENCY CONTROLS */
+.emergency-controls {
+  position: sticky;
+  top: 0;
+  background: #161616;
+  border-bottom: 1px solid #444;
+  padding: 12px;
+  margin-bottom: 16px;
+  z-index: 100;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.emergency-controls button {
+  padding: 8px 16px;
+  font-weight: bold;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #fff;
+  transition: all 0.2s;
+  min-width: 100px;
+}
+
+.emergency-controls .restart-btn {
+  background-color: #ff8800;
+  box-shadow: 0 0 6px rgba(255, 136, 0, 0.3);
+}
+
+.emergency-controls .restart-btn:hover {
+  background-color: #ffaa33;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 12px rgba(255, 136, 0, 0.5);
+}
+
+.emergency-controls .shutdown-btn {
+  background-color: #c62828;
+  box-shadow: 0 0 6px rgba(198, 40, 40, 0.3);
+}
+
+.emergency-controls .shutdown-btn:hover {
+  background-color: #e53935;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 12px rgba(198, 40, 40, 0.5);
+}
+
+/* Hide old system controls */
+#system-controls {
+  display: none;
+}

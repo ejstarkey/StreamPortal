@@ -1,0 +1,6 @@
+inbound:
+  - actions:
+    - type: restrict-ips
+      config:
+        allow:
+          - "192.250.232.11/32"

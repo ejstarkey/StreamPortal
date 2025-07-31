@@ -1,0 +1,211 @@
+/* /static/css/tweak.css */
+
+.tweak-modal {
+  display: none;
+  position: fixed;
+  z-index: 10000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+}
+
+.tweak-modal.show {
+  display: block !important;
+}
+
+.tweak-modal-content {
+  background-color: #161616;
+  color: #eee;
+  margin: 5% auto;
+  padding: 24px;
+  width: 600px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 12px;
+  border: 1px solid #333;
+  box-shadow: 0 0 30px rgba(0, 255, 100, 0.15);
+  font-family: "Segoe UI", sans-serif;
+}
+
+.tweak-modal-content h3 {
+  color: #6f6;
+  font-size: 20px;
+  margin-bottom: 20px;
+  text-shadow: 0 0 6px #3f3;
+  text-align: center;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #aaa;
+  cursor: pointer;
+  transition: color 0.2s;
+  z-index: 10;
+}
+
+.modal-close:hover {
+  color: #fff;
+}
+
+#tweak-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 20px;
+  row-gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #aaf;
+}
+
+.form-group select,
+.form-group input[type="number"] {
+  width: 100%;
+  padding: 8px;
+  background: #1e1e1e;
+  color: #e0e0e0;
+  border: 1px solid #444;
+  border-radius: 6px;
+  font-size: 14px;
+  box-shadow: inset 0 0 4px rgba(0,255,100,0.05);
+}
+
+.form-help {
+  font-size: 0.75em;
+  color: #888;
+  margin-top: 3px;
+}
+
+.form-group.full-width {
+  grid-column: span 2;
+}
+
+button#save-tweak-button {
+  padding: 10px 16px;
+  background-color: #1f8f1f;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-shadow: 0 0 8px rgba(0, 255, 100, 0.1);
+  margin-top: 10px;
+  grid-column: span 2;
+  justify-self: end;
+}
+
+button#save-tweak-button:hover {
+  background-color: #2dbf2d;
+  box-shadow: 0 0 10px rgba(0, 255, 100, 0.25);
+}
+
+/* GPU Monitor Styles */
+.gpu-monitor-section {
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  grid-column: span 2;
+}
+
+.gpu-monitor-section h4 {
+  color: #6f6;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.gpu-status {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.gpu-card {
+  background: #222;
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.gpu-card h5 {
+  color: #aaf;
+  margin: 0 0 8px 0;
+  font-size: 14px;
+}
+
+.gpu-metric {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.gpu-metric .label {
+  color: #ccc;
+}
+
+.gpu-metric .value {
+  color: #6f6;
+  font-weight: bold;
+}
+
+.gpu-loading, .gpu-error {
+  color: #888;
+  text-align: center;
+  font-style: italic;
+  grid-column: 1 / -1;
+}
+
+.gpu-error {
+  color: #f66;
+}
+
+.refresh-btn {
+  padding: 6px 12px;
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s;
+}
+
+.refresh-btn:hover {
+  background-color: #444;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #333;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4f4, #ff4);
+  transition: width 0.3s;
+}

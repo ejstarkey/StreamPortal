@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mixer-container">
+    <div class="glass-panel">
+        {% if lane_pairs %}
+        {% for pair in lane_pairs %}
+        <div class="stream-panel" data-stream-id="{{ pair.name }}">
+            <h3>{{ pair.name }}</h3>
+            {% if pair.audio_streams %}
+            {% for audio in pair.audio_streams %}
+            <div class="audio-control">
+                <label>{{ audio.label }}</label>
+                <div id="fader-{{ pair.name }}-{{ audio.pulse_name | replace('.', '-') | replace(':', '-') | replace('/', '-') }}" class="fader"></div>
+                <div id="mute-{{ pair.name }}-{{ audio.pulse_name | replace('.', '-') | replace(':', '-') | replace('/', '-') }}" class="mute-toggle"></div>
+                <canvas id="vu-{{ pair.name }}-{{ audio.pulse_name | replace('.', '-') | replace(':', '-') | replace('/', '-') }}" class="vu-meter" width="20" height="200"></canvas>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p>No audio streams configured for {{ pair.name }}.</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <p>No enabled streams found. Configure streams in the dashboard.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script src="/static/js/nexusUI.js"></script>
+<script src="/static/js/socket.io.min.js"></script>
+<script src="/static/js/mixer.js"></script>
+<script src="/static/js/debug.js"></script>
+<link rel="stylesheet" href="/static/css/mixer.css">
+{% endblock %}

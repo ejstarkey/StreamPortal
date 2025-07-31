@@ -1,0 +1,151 @@
+/* System Logs Styles */
+.logs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.logs-tabs {
+    display: flex;
+    border-bottom: 2px solid #333;
+    margin-bottom: 20px;
+}
+
+.log-tab {
+    padding: 10px 20px;
+    background: #2a2a2a;
+    color: #888;
+    border: 1px solid #333;
+    border-bottom: none;
+    margin-right: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+
+.log-tab:hover {
+    background: #333;
+    color: #fff;
+    text-decoration: none;
+}
+
+.log-tab.active {
+    background: #1a1a1a;
+    color: #00ff00;
+    border-top: 2px solid #00ff00;
+}
+
+.tab-badge {
+    background: #dc3545;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 11px;
+    margin-left: 5px;
+    display: inline-block;
+}
+
+.log-controls {
+    margin-bottom: 10px;
+}
+
+.log-container {
+    background: #1a1a1a;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    padding: 15px;
+    height: 600px;
+    overflow-y: auto;
+    border-radius: 5px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    border: 1px solid #333;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.btn-secondary {
+    background: #333;
+    color: #fff;
+    border: 1px solid #555;
+    padding: 5px 15px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: #444;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: #fff;
+    border: 1px solid #dc3545;
+    padding: 5px 15px;
+    cursor: pointer;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
+.btn-warning {
+    background: #ffc107;
+    color: #000;
+    border: 1px solid #ffc107;
+    padding: 5px 15px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: #fff;
+    border: 1px solid #007bff;
+    padding: 5px 15px;
+    cursor: pointer;
+}
+
+.container-fluid {
+    position: relative;
+    z-index: 1;
+}
+
+.logs-tabs {
+    position: relative;
+    z-index: 10;
+}
+
+.tab-content {
+    position: relative;
+    z-index: 5;
+}
+
+.tab-content {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.log-container {
+  z-index: 1;
+  pointer-events: auto;
+}
+
+#menu-dropdown {
+  position: absolute;
+  z-index: 999999;
+}
+
+header, .menu-container, #menu-dropdown {
+  position: relative;
+  z-index: 1000000 !important;
+}

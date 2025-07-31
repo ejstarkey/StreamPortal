@@ -1,0 +1,11 @@
+[Unit]
+Description=Ngrok tunnel
+After=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/ngrok start --all --config /home/cornerpins/.config/ngrok/ngrok.yml
+Restart=on-failure
+User=cornerpins
+
+[Install]
+WantedBy=multi-user.target

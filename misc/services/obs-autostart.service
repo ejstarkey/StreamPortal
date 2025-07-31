@@ -1,0 +1,18 @@
+[Unit]
+Description=OBS Studio Auto Start
+After=graphical.target
+Wants=graphical.target
+
+[Service]
+Type=simple
+User=cornerpins
+Group=cornerpins
+Environment=DISPLAY=:0
+Environment=__NV_PRIME_RENDER_OFFLOAD=1
+Environment=__GLX_VENDOR_LIBRARY_NAME=nvidia
+ExecStart=/usr/bin/obs
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=graphical.target

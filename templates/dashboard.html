@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+{% block content %}
+
+<form id="config-form" method="post" enctype="multipart/form-data">
+  <div class="fieldset-container">
+    <!-- YouTube Connection Settings -->
+    <fieldset class="base-url">
+      <legend>YouTube Connection Settings</legend>
+
+      <label for="youtube_rtmp_base">Base URL:</label>
+      <input type="text"
+             id="youtube_rtmp_base"
+             name="youtube_rtmp_base"
+             value="{{ youtube_rtmp_base }}"
+             required>
+
+      <label for="youtube_backup_url">Backup URL:</label>
+      <input type="text"
+             id="youtube_backup_url"
+             name="youtube_backup_url"
+             value="{{ youtube_backup_url }}"
+             required
+             class="backup-url">
+    </fieldset>
+
+    <!-- Select Streams to Display -->
+    <fieldset class="enable-streams">
+      <legend>Select Streams to Display</legend>
+      <div class="checkbox-grid">
+        {% for pair in lane_pairs %}
+          <label>
+            <input type="checkbox"
+                   class="enable-checkbox"
+                   data-index="{{ loop.index0 }}"
+                   name="lane{{ loop.index0 }}_enabled"
+                   {% if pair.enabled %}checked{% endif %}>
+            {{ pair.name }}
+          </label>
+        {% endfor %}
+      </div>
+    </fieldset>
+  </div>
+
+  <!-- Stream Buttons -->
+  <div id="stream-buttons" class="stream-buttons-container">
+    {% for pair in lane_pairs %}
+      {% if pair.enabled %}
+        {% set i = loop.index0 %}
+        <button type="button"
+                class="stream-button stream-color-{{ i }}"
+                data-index="{{ i }}">
+          {{ pair.name }}
+        </button>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <!-- Stream Panels -->
+  <div id="stream-panels" class="stream-panels-container">
+    {% for pair in lane_pairs %}
+      {% set i = loop.index0 %}
+      <div id="panel-lane{{ i }}"
+           class="stream-panel{% if not pair.enabled %} hidden-panel{% endif %}">
+
+        <h3>Scene Name: {{ pair.name }}</h3>
+        <div class="autocreate-toggle">
+          <label>
+            <input type="checkbox"
+                  name="lane{{ i }}_autocreate"
+                  {% if pair.autocreate is not defined or pair.autocreate %}checked{% endif %}>
+            AutoCreate YouTube Stream
+          </label>
+        </div>
+
+        <input type="hidden"
+               name="lane{{ i }}_name"
+               value="{{ pair.name }}">
+
+        {# ── ROW: Source Type + Optional Cameras ── #}
+        <div class="stream-row">
+
+          {# Source Type (left half) #}
+          <div class="source-type">
+            <label>
+              <input type="radio"
+                     name="lane{{ i }}_src_type"
+                     value="rtsp"
+                     {% if pair.src_type == 'rtsp' or not pair.src_type %}checked{% endif %}>
+              RTSP Stream
+            </label>
+            <label>
+              <input type="radio"
+                     name="lane{{ i }}_src_type"
+                     value="local"
+                     {% if pair.src_type == 'local' %}checked{% endif %}>
+              Local Camera
+            </label>
+          </div>
+
+          {# Optional Cameras (right half) #}
+          <div class="optional-camera-section">
+            {# Pin Cam #}
+            <label>
+              <input type="checkbox"
+                     name="lane{{ i }}_enable_pin_cam"
+                     {% if pair.pin_cam.enabled %}checked{% endif %}>
+              Optional Pin Cam
+            </label>
+            <div class="pin-cam-config hidden">
+              <label>
+                <input type="radio"
+                       name="lane{{ i }}_pin_cam_type"
+                       value="rtsp"
+                       {% if pair.pin_cam.type == 'rtsp' %}checked{% endif %}>
+                RTSP
+              </label>
+              <label>
+                <input type="radio"
+                       name="lane{{ i }}_pin_cam_type"
+                       value="local"
+                       {% if pair.pin_cam.type == 'local' %}checked{% endif %}>
+                Local
+              </label>
+              <input type="text"
+                     name="lane{{ i }}_pin_rtsp"
+                     placeholder="RTSP URL"
+                     class="pin-rtsp-field"
+                     value="{{ pair.pin_cam.rtsp }}">
+              <select name="lane{{ i }}_pin_local"
+                      class="pin-local-field hidden"
+                      data-selected="{{ pair.pin_cam.local }}">
+                <option value="">-- Select Camera --</option>
+                {% for cam in local_cameras %}
+                <option value="{{ cam.id }}" {% if cam.id == pair.pin_cam.local %}selected{% endif %}>
+                    {{ cam.label }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            {# Player Cam #}
+            <label>
+              <input type="checkbox"
+                     name="lane{{ i }}_enable_player_cam"
+                     {% if pair.player_cam.enabled %}checked{% endif %}>
+              Optional Player Cam
+            </label>
+            <div class="player-cam-config hidden">
+              <label>
+                <input type="radio"
+                       name="lane{{ i }}_player_cam_type"
+                       value="rtsp"
+                       {% if pair.player_cam.type == 'rtsp' %}checked{% endif %}>
+                RTSP
+              </label>
+              <label>
+                <input type="radio"
+                       name="lane{{ i }}_player_cam_type"
+                       value="local"
+                       {% if pair.player_cam.type == 'local' %}checked{% endif %}>
+                Local
+              </label>
+              <input type="text"
+                     name="lane{{ i }}_player_rtsp"
+                     placeholder="RTSP URL"
+                     class="player-rtsp-field"
+                     value="{{ pair.player_cam.rtsp }}">
+              <select name="lane{{ i }}_player_local"
+                      class="player-local-field hidden"
+                      data-selected="{{ pair.player_cam.local }}">
+                <option value="">-- Select Camera --</option>
+                {% for cam in local_cameras %}
+                <option value="{{ cam.id }}" {% if cam.id == pair.player_cam.local %}selected{% endif %}>
+                    {{ cam.label }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        {# ── end stream-row ── #}
+
+        <!-- RTSP URL field -->
+        <div class="rtsp-field">
+          <label for="lane{{ i }}_camera_rtsp">RTSP URL:</label>
+          <input type="text"
+                 id="lane{{ i }}_camera_rtsp"
+                 name="lane{{ i }}_camera_rtsp"
+                 value="{{ pair.camera_rtsp }}">
+        </div>
+
+        <!-- Local Camera Select -->
+        <div class="local-field" style="display: {% if pair.src_type == 'local' %}block{% else %}none{% endif %};">
+          <label for="lane{{ i }}_local_src">Select Local Camera:</label>
+          <select name="lane{{ i }}_local_src" class="camera-select-dropdown" data-selected="{{ pair.local_src }}">
+            <option value="">-- Select Camera --</option>
+            {% for cam in local_cameras %}
+            <option value="{{ cam.id }}" {% if cam.id == pair.local_src %}selected{% endif %}>
+                {{ cam.label }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Scoring Overlay Type -->
+        <div class="overlay-settings-row">
+          <label>
+            Type of Scoring Overlay:
+            <select name="lane{{ i }}_scoring_type"
+                    id="lane{{ i }}_scoring_type"
+                    class="scoring-overlay-dropdown">
+              <option value="livescores"
+                      {% if pair.scoring_type == 'livescores' %}selected{% endif %}>
+                Computerscore Livescores
+              </option>
+              <option value="duohd"
+                      {% if pair.scoring_type == 'duohd' %}selected{% endif %}>
+                Local/DuoHD Feed
+              </option>
+            </select>
+          </label>
+          <div class="livescores-settings livescores-hidden"
+               id="livescores-settings-{{ i }}">
+            <div class="inline-select-wrapper">
+              <label>
+                State:
+                <select name="lane{{ i }}_state"
+                        id="lane{{ i }}_state"
+                        data-index="{{ i }}"
+                        data-saved="{{ pair.state }}">
+                  <option value="">-- Select State --</option>
+                  <option value="qld" {% if pair.state=='qld'%}selected{% endif %}>QLD</option>
+                  <option value="nsw" {% if pair.state=='nsw'%}selected{% endif %}>NSW</option>
+                  <option value="vic" {% if pair.state=='vic'%}selected{% endif %}>VIC</option>
+                  <option value="wa"  {% if pair.state=='wa' %}selected{% endif %}>WA</option>
+                  <option value="sa"  {% if pair.state=='sa' %}selected{% endif %}>SA</option>
+                  <option value="tas" {% if pair.state=='tas'%}selected{% endif %}>TAS</option>
+                </select>
+              </label>
+              <label>
+                Centre:
+                <select name="lane{{ i }}_centre"
+                        id="lane{{ i }}_centre"
+                        data-index="{{ i }}"
+                        data-saved="{{ pair.centre }}">
+                  <option value="">-- Select Centre --</option>
+                </select>
+              </label>
+        <!-- Delay Sync Configuration -->
+        <div class="delay-config">
+          <label for="lane{{ i }}_video_delay_ms">Stream Delay (ms):</label>
+          <input type="number"
+                id="lane{{ i }}_video_delay_ms"
+                name="lane{{ i }}_video_delay_ms"
+                min="0"
+                max="60000"
+                step="1000"
+                value="{{ pair.video_delay_ms | default(0) }}"
+                class="form-control">
+          <small class="form-text text-warning">
+            Adjust Video Delay to match scoring<br>
+            ⚠️ Recommended: 15000-30000 ms.<br>
+          </small>
+        </div>              
+      </div>
+    </div>
+  </div>
+
+        <!-- Overlay Source Inputs -->
+        <div id="local-overlay-inputs-{{ i }}">
+          <label for="lane{{ i }}_odd_lane_src">Odd Lane Scoring Source: append /checkresults.html</label>
+          <input type="text"
+                 id="lane{{ i }}_odd_lane_src"
+                 name="lane{{ i }}_odd_lane_src"
+                 value="{{ pair.odd_lane_scoring_source }}">
+
+          <label for="lane{{ i }}_even_lane_src">Even Lane Scoring Source: append /checkresults.html</label>
+          <input type="text"
+                 id="lane{{ i }}_even_lane_src"
+                 name="lane{{ i }}_even_lane_src"
+                 value="{{ pair.even_lane_scoring_source }}">
+        </div>
+
+<div class="audio-section" data-index="{{ i }}">
+  <label>Additional Audio Streams:</label>
+  <div id="lane{{ i }}_audio_dropdowns"></div>
+  {% for audio in pair.audio_streams | default([]) %}
+    <input type="hidden" name="lane{{ i }}_audio_streams_{{ loop.index0 }}" value="{{ audio.label if audio.label is defined else audio }}">
+    <input type="hidden" name="lane{{ i }}_audio_names_{{ loop.index0 }}" value="{{ audio.friendly_name if audio.friendly_name is defined else '' }}">
+  {% endfor %}
+</div>
+
+        <!-- YouTube Stream Key -->
+        <label for="lane{{ i }}_stream_key">YouTube Stream Key:</label>
+        <input type="text"
+               id="lane{{ i }}_stream_key"
+               name="lane{{ i }}_stream_key"
+               value="{{ pair.stream_key }}">
+
+        <!-- YouTube Live Stream ID -->
+        <label for="lane{{ i }}_youtube_live_id">YouTube Live Stream ID:</label>
+        <input type="text"
+               id="lane{{ i }}_youtube_live_id"
+               name="lane{{ i }}_youtube_live_id"
+               value="{{ pair.youtube_live_id | default('') }}"
+               placeholder="e.g., ioJQxWoR0OI">
+        <small class="form-text">The ID from your YouTube live stream URL (youtube.com/live/YOUR_ID)</small>
+
+        {% if not pair.enabled %}
+          {# Preserve hidden fields when disabled #}
+          <input type="hidden" name="lane{{ i }}_enabled" value="off">
+          <input type="hidden" name="lane{{ i }}_src_type" value="{{ pair.src_type | default('rtsp') }}">
+          <input type="hidden" name="lane{{ i }}_camera_rtsp" value="{{ pair.camera_rtsp | default('') }}">
+          <input type="hidden" name="lane{{ i }}_local_src" value="{{ pair.local_src | default('') }}">
+          <input type="hidden" name="lane{{ i }}_scoring_type" value="{{ pair.scoring_type | default('livescores') }}">
+          <input type="hidden" name="lane{{ i }}_state" value="{{ pair.state | default('') }}">
+          <input type="hidden" name="lane{{ i }}_centre" value="{{ pair.centre | default('') }}">
+          <input type="hidden" name="lane{{ i }}_odd_lane_src" value="{{ pair.odd_lane_scoring_source | default('') }}">
+          <input type="hidden" name="lane{{ i }}_even_lane_src" value="{{ pair.even_lane_scoring_source | default('') }}">
+          <input type="hidden" name="lane{{ i }}_stream_key" value="{{ pair.stream_key | default('') }}">
+          <input type="hidden" name="lane{{ i }}_youtube_live_id" value="{{ pair.youtube_live_id | default('') }}">
+          <input type="hidden" name="lane{{ i }}_enable_pin_cam" value="{{ 'on' if pair.pin_cam.enabled else 'off' }}">
+          <input type="hidden" name="lane{{ i }}_pin_cam_type" value="{{ pair.pin_cam.type | default('rtsp') }}">
+          <input type="hidden" name="lane{{ i }}_pin_rtsp" value="{{ pair.pin_cam.rtsp | default('') }}">
+          <input type="hidden" name="lane{{ i }}_pin_local" value="{{ pair.pin_cam.local | default('') }}">
+          <input type="hidden" name="lane{{ i }}_enable_player_cam" value="{{ 'on' if pair.player_cam.enabled else 'off' }}">
+          <input type="hidden" name="lane{{ i }}_player_cam_type" value="{{ pair.player_cam.type | default('rtsp') }}">
+          <input type="hidden" name="lane{{ i }}_player_rtsp" value="{{ pair.player_cam.rtsp | default('') }}">
+          <input type="hidden" name="lane{{ i }}_player_local" value="{{ pair.player_cam.local | default('') }}">
+        {% endif %}
+
+      </div>
+    {% endfor %}
+  </div>
+<button type="button" onclick="clearVideoSelections()" class="clear-video-button">Clear Video Selections</button>
+  <button type="submit" class="save-button">Save & Apply</button>
+</form>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/dashboard_logic.js') }}"></script>
+<script src="{{ url_for('static', filename='js/stream_toggle.js') }}"></script>
+{% endblock %}

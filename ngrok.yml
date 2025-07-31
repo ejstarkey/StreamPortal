@@ -1,0 +1,16 @@
+version: "2"
+authtoken: 2zPV5UjVV8czNE6TkoRltera6l8_79mDYwPihC1gChqXPBbSL
+tunnels:
+  cornerpins-stream:
+    proto: http
+    addr: 1983
+    hostname: mighty-dassie-rightly.ngrok-free.app
+  #  traffic_policy:
+  #    inbound:
+  #      - actions:
+  #        - type: restrict-ips
+  #          config:
+  #            allow:
+  #              - "192.250.232.11/32"
+  #              - "192.250.232.168/32"
+  #              - "144.6.113.77/32"

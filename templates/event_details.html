@@ -1,0 +1,137 @@
+<!-- templates/event_details.html -->
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container">
+        <h1>Event Details</h1>
+        
+        <!-- Show current active event status -->
+        {% if current_event %}
+        <div class="alert alert-info">
+            <strong>Currently Active Event:</strong> {{ current_event.event_name }} at {{ current_event.venue }}
+            {% if current_event.banner_url %}
+            <span class="badge badge-success">With Banner</span>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        <!-- Display Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul>
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        
+<div data-current-event='{{ current_event | tojson if current_event else "{}" }}' style="display: none;"></div>
+
+        <!-- Event Details Form -->
+        <form method="POST" enctype="multipart/form-data" id="event-form">
+            <!-- ROW 1: Event Name + Venue with Lookup -->
+            <div class="form-row">
+                <div class="form-group half-width">
+                    <label for="event_name">Event Name</label>
+                    <input type="text" id="event_name" name="event_name" required class="form-control" 
+                           value="{{ current_event.event_name if current_event else '' }}">
+                </div>
+                <div class="form-group half-width">
+                    <label for="venue">Venue</label>
+                    <input type="text" id="venue" name="venue" required class="form-control" 
+                           value="{{ current_event.venue if current_event else '' }}" 
+                           placeholder="Enter venue name or address">
+                    <button type="button" id="venue-lookup" class="btn btn-secondary" style="margin-top: 5px;">Lookup Venue</button>
+                </div>
+            </div>
+
+            <!-- ROW 2: Start Date + End Date -->
+            <div class="form-row">
+                <div class="form-group half-width">
+                    <label for="event_dates_start">Event Start Date</label>
+                    <input type="date" id="event_dates_start" name="event_dates_start" required class="form-control"
+                           value="{{ current_event.event_dates_start if current_event else '' }}">
+                </div>
+                <div class="form-group half-width">
+                    <label for="event_dates_end">Event End Date</label>
+                    <input type="date" id="event_dates_end" name="event_dates_end" required class="form-control"
+                           value="{{ current_event.event_dates_end if current_event else '' }}">
+                </div>
+            </div>
+
+            <!-- ROW 3: Banner Upload + Preview -->
+            <div class="form-row">
+                <div class="form-group half-width">
+                    <label for="logo_upload">Event Banner/Logo Upload</label>
+                    <input type="file" id="logo_upload" name="logo_upload" accept="image/*" class="form-control"
+                           {% if current_event and current_event.banner_url %}data-banner-url="{{ current_event.banner_url }}"{% endif %}>
+                    <small class="form-text text-muted">Banner appears in top-left of all streams. Recommended: 300x100px</small>
+                </div>
+                <div class="form-group half-width">
+                    <div id="banner-preview" class="banner-preview-box">
+                        {% if current_event and current_event.banner_url %}
+                        <img src="{{ current_event.banner_url }}" alt="Current Event Banner">
+                        {% else %}
+                        Banner preview will appear here
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROW 4: Lane Draw + Add Squad Button -->
+            <div class="form-row">
+                <div class="form-group half-width">
+                    <label for="lane_draw_csv">Lane Draw CSV (Optional)</label>
+                    <input type="file" id="lane_draw_csv" name="lane_draw_csv" class="form-control" accept=".csv">
+                    <small class="form-text text-muted">CSV format: Bowler Name, Lane, Time</small>
+                </div>
+                <div class="form-group half-width">
+                    <label>Additional Squads</label>
+                    <button type="button" id="add-squad" class="btn btn-secondary" style="margin-top: 20px;">Add Squad</button>
+                </div>
+            </div>
+
+            <!-- Additional Squad Files -->
+            <div id="squads-container" class="squads-section">
+                <!-- Dynamic squad files added here -->
+            </div>
+
+            <!-- ROW 5: Template Management -->
+            <div class="form-row">
+                <div class="form-group half-width">
+                    <label for="template_name">Template Name</label>
+                    <input type="text" id="template_name" name="template_name" class="form-control" placeholder="Enter template name">
+                    <button type="button" id="save-template" class="btn btn-secondary" style="margin-top: 5px;">Save Template</button>
+                </div>
+                <div class="form-group half-width">
+                    <label for="load-template">Load Template</label>
+                    <div class="template-controls">
+                        <select id="load-template" name="load_template" class="form-control">
+                            <option value="">Select Template</option>
+                        </select>
+                        <button type="button" id="load-template-btn" class="btn btn-secondary">Load</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Set Active Event</button>
+                <button type="button" id="clear-form" class="btn btn-secondary">Clear Form</button>
+            </div>
+            <input type="hidden" id="hidden_banner_url" name="hidden_banner_url" 
+       value="{{ current_event.banner_url if current_event and current_event.banner_url else '' }}">
+        </form>
+    </div>
+{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/event_details.css') }}">
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/event_details.js') }}"></script>
+{% endblock %}

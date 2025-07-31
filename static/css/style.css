@@ -1,0 +1,804 @@
+/* ==========================================================================
+   Global & Layout
+   ========================================================================== */
+body {
+  background-color: #121212;
+  color: #e0e0e0;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* ==========================================================================
+   Header & Login Box
+   ========================================================================== */
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+#stream-button.header-stream-button {
+  position: absolute;
+  top: 0.5rem;
+  left: 1rem;
+  background-color: #121212;
+  color: #00ff00;
+  border: 2px solid #00ff00;
+  padding: 0.5rem 5px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 2.1rem !important;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1.2 !important;
+  white-space: pre-wrap !important;
+  width: 200px;
+  height: 75px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
+  transition: box-shadow 0.3s ease;
+}
+#stream-button.header-stream-button:hover {
+  box-shadow: 0 0 15px #00ff00, 0 0 30px #00ff00;
+}
+#stream-button.header-stream-button.not-streaming {
+  color: #00ff00;
+  border-color: #00ff00;
+  box-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
+}
+#stream-button.header-stream-button.not-streaming:hover {
+  box-shadow: 0 0 15px #00ff00, 0 0 30px #00ff00;
+}
+#stream-button.header-stream-button.streaming {
+  color: #ff0000;
+  border-color: #ff0000;
+  box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+  animation: red-pulse 1.5s infinite ease-in-out, text-flash 1.5s infinite ease-in-out;
+}
+@keyframes red-pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+  }
+  50% {
+    box-shadow: 0 0 25px #ff0000, 0 0 50px #ff0000;
+  }
+}
+@keyframes text-flash {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.logo {
+  max-width: 150px;
+}
+
+.portal-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #e0e0e0;
+}
+
+.logout-button {
+  background-color: #b00020;
+  color: #ffffff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.logout-button:hover {
+  background-color: #910016;
+}
+
+.back-button {
+  display: inline-block;
+  background-color: #2979ff;
+  color: #ffffff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.back-button:hover {
+  background-color: #1565c0;
+}
+
+.login-box {
+  background-color: #1e1e1e;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 400px;
+  margin: 2rem auto;
+}
+.login-box h2 {
+  margin-bottom: 1rem;
+  color: #e0e0e0;
+}
+.login-box label {
+  display: block;
+  margin-top: 0.5rem;
+  color: #e0e0e0;
+}
+.login-box input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  background-color: #2e2e2e;
+  border: none;
+  border-radius: 4px;
+  color: #e0e0e0;
+}
+.login-box button {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  background-color: #2979ff;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.login-box button:hover {
+  background-color: #1565c0;
+}
+
+/* ==========================================================================
+   Fieldsets & Checkbox Grid
+   ========================================================================== */
+.fieldset-container {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+fieldset.base-url,
+fieldset.enable-streams {
+  background-color: #1e1e1e;
+  padding: 1rem;
+  border: 1px solid #333;
+  border-radius: 4px;
+  flex: 1;
+  box-sizing: border-box;
+}
+
+.enable-streams .checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: auto;
+  grid-gap: 0.5rem 1rem;
+}
+.enable-streams label {
+  margin: 0;
+  white-space: nowrap;
+  color: #e0e0e0;
+}
+
+/* ==========================================================================
+   Stream Buttons (Tabs)
+   ========================================================================== */
+.stream-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.stream-button {
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  color: #ffffff;
+}
+.stream-button:hover {
+  transform: scale(1.05);
+}
+.stream-button.active {
+  animation: blue-hue-blink 2s infinite ease-in-out;
+}
+
+@keyframes blue-hue-blink {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(0, 183, 235, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(0, 183, 235, 1.0);
+  }
+}
+
+/* ==========================================================================
+   Panels & Inputs
+   ========================================================================== */
+.stream-panels-container {
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.stream-panel {
+  display: none;
+}
+
+label {
+  display: block;
+  margin: 0.75rem 0;
+  color: #e0e0e0;
+}
+input[type="text"],
+input[type="file"],
+select {
+  width: 100%;
+  padding: 0.5rem;
+  background-color: #2e2e2e;
+  border: none;
+  border-radius: 4px;
+  color: #e0e0e0;
+  margin-top: 0.25rem;
+}
+.source-type {
+  margin: 0.75rem 0;
+}
+.rtsp-field,
+.local-field {
+  margin-bottom: 0.75rem;
+}
+
+/* ==========================================================================
+   Save Button & Flash Messages
+   ========================================================================== */
+button.save-button {
+  background-color: #388e3c;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+button.save-button:hover {
+  background-color: #2e7d32;
+}
+
+.flash {
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  position: relative;
+  padding-left: 2rem;
+}
+.flash.danger {
+  background-color: #b00020;
+  color: white;
+}
+.flash.success {
+  background-color: #388e3c;
+  color: white;
+}
+.flash.success::before {
+  content: '✅';
+  position: absolute;
+  left: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.flash.danger::before {
+  content: '⚠️';
+  position: absolute;
+  left: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* ==========================================================================
+   Advertising Management Styles
+   ========================================================================== */
+.ads-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.ads-table th,
+.ads-table td {
+  padding: 0.75rem;
+  border: 1px solid #333;
+}
+.ads-table th {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+.ads-table td {
+  color: #e0e0e0;
+}
+
+.upload-ad-button {
+  background-color: #2979ff;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+.upload-ad-button:hover {
+  background-color: #1565c0;
+}
+.save-ad-button {
+  background-color: #388e3c;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.save-ad-button:hover {
+  background-color: #2e7d32;
+}
+.delete-ad-button {
+  background-color: #b00020;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.delete-ad-button:hover {
+  background-color: #910016;
+}
+
+.modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.7);
+}
+.modal-content {
+  background-color: #2e2e2e;
+  margin: 10% auto;
+  padding: 1rem;
+  border: 1px solid #333;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 8px;
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #e0e0e0;
+}
+.modal-close:hover {
+  color: #ffffff;
+}
+
+.logout-form {
+  display: inline-block;
+}
+
+.overlay-settings-row {
+  display: flex;                     /* Aligns the fields horizontally */
+  justify-content: space-between;    /* Evenly space out the fields */
+  gap: 20px;                         /* Adds space between fields */
+  width: 100%;                       /* Full width of the container */
+  box-sizing: border-box;            /* Prevents content from overflowing */
+  flex-wrap: wrap;                   /* Allows wrapping on smaller screens */
+  align-items: center;               /* Ensures vertical alignment of fields */
+}
+
+.overlay-settings-row > label,
+.overlay-settings-row > select,
+.overlay-settings-row > input {
+  flex: 1 1 25%;                     /* Each field takes up 25% of the container */
+  box-sizing: border-box;            /* Prevents overflow */
+  min-width: 200px;                  /* Prevents fields from becoming too narrow */
+  display: flex;
+  flex-direction: column;            /* Ensures label is on top of input/select */
+  justify-content: center;           /* Vertically aligns the content */
+}
+
+
+.inline-select-wrapper {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+.inline-select-wrapper label {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==========================================================================
+   Preview Scene Styles
+   ========================================================================== */
+.scene-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.scene-tile {
+  background-color: #1e1e1e;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+}
+.scene-tile h4 {
+  margin: 0 0 0.5rem 0;
+  color: #e0e0e0;
+}
+.scene-tile img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+.scene-preview-header h2,
+.scene-preview-header p {
+  text-align: center;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ==========================================================================
+   Panel Visibility
+   ========================================================================== */
+.hidden-panel {
+  display: none;
+}
+
+/* ==========================================================================
+   Stream Tab Colors
+   ========================================================================== */
+.stream-color-0 { background-color: hsl(0, 70%, 40%); color: #fff; }
+.stream-color-1 { background-color: hsl(30, 70%, 40%); color: #fff; }
+.stream-color-2 { background-color: hsl(60, 70%, 40%); color: #fff; }
+.stream-color-3 { background-color: hsl(90, 70%, 40%); color: #fff; }
+.stream-color-4 { background-color: hsl(120, 70%, 40%); color: #fff; }
+.stream-color-5 { background-color: hsl(150, 70%, 40%); color: #fff; }
+.stream-color-6 { background-color: hsl(180, 70%, 40%); color: #fff; }
+.stream-color-7 { background-color: hsl(210, 70%, 40%); color: #fff; }
+.stream-color-8 { background-color: hsl(240, 70%, 40%); color: #fff; }
+.stream-color-9 { background-color: hsl(270, 70%, 40%); color: #fff; }
+.stream-color-10 { background-color: hsl(300, 70%, 40%); color: #fff; }
+.stream-color-11 { background-color: hsl(330, 70%, 40%); color: #fff; }
+
+/* ==========================================================================
+   Utility Display Classes
+   ========================================================================== */
+.hidden {
+  display: none;
+}
+
+.inline {
+  display: inline;
+}
+
+/* ==========================================================================
+   Header Nav Grouping
+   ========================================================================== */
+.header-nav {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.nav-button {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-decoration: none;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+}
+
+.scene-button {
+  background-color: #f9a825;
+}
+.scene-button:hover {
+  background-color: #fbc02d;
+}
+
+.ad-button {
+  background-color: #1976d2;
+}
+.ad-button:hover {
+  background-color: #1565c0;
+}
+
+.services-button-container {
+  margin: 10px 0;
+  text-align: left;
+}
+
+.services-launch-button {
+  background-color: #1f8f1f;
+  color: #fff;
+  padding: 10px 14px;
+  border: none;
+  font-weight: bold;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 0 4px #0f0;
+}
+
+.services-launch-button:hover {
+  background-color: #2dbf2d;
+}
+
+
+.optional-camera-section label {
+  display: block;
+  margin: 0.3em 0;
+}
+
+.pin-cam-config,
+.player-cam-config {
+  margin-top: 0.5em;
+  padding-left: 1em;
+}
+
+.pin-rtsp-field,
+.player-rtsp-field,
+.pin-local-field,
+.player-local-field {
+  margin: 0.3em 0;
+  width: 100%;
+}
+
+.source-type,
+.stream-row .optional-camera-section {
+  flex: 1 1 50%;
+  box-sizing: border-box;
+}
+
+.stream-row .optional-camera-section {
+  margin-top: 0 !important;
+}
+
+/* ==========================================================================
+   Side-by-side Source + Optional-cams
+   ========================================================================== */
+.stream-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.stream-row .source-type,
+.stream-row .optional-camera-section {
+  flex: 1 1 50%;
+  box-sizing: border-box;
+  margin-top: 0;  /* kill default margins that push it down */
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Side-by-side layout: left = source + RTSP + local; right = optional cams
+   ──────────────────────────────────────────────────────────────────────── */
+.stream-row,
+.stream-row + .rtsp-field,
+.stream-row + .rtsp-field + .local-field {
+  float: left;
+  width: 50%;
+  box-sizing: border-box;
+  margin: 0;            /* kill any extra top/bottom margin */
+  padding-right: 1rem;  /* gap between columns */
+}
+
+.stream-row .optional-camera-section {
+  float: right;
+  width: 50%;
+  box-sizing: border-box;
+  margin-top: 0;
+}
+
+/* small top margin on the fields themselves */
+.rtsp-field,
+.local-field {
+  margin-top: 0.5rem;
+}
+
+/* clear the floats after the Local field so the rest of the form resumes normal flow */
+.local-field::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+/* Audio-section layout */
+.audio-section {
+  margin-top: 1rem;
+}
+.audio-sources-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.audio-sources-checkboxes label {
+  flex: 1 1 auto;
+  white-space: nowrap;
+}
+
+/* Dynamic audio-select dropdown styling */
+.audio-select-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0 0 1.5rem; /* indent under checkboxes */
+}
+.audio-select-row label {
+  white-space: nowrap;
+}
+
+/* ── STREAM ROW: two equal halves ── */
+.stream-row {
+  display: flex;
+  gap: 1rem;
+}
+.source-type,
+.optional-camera-section {
+  flex: 1 1 50%;
+  box-sizing: border-box;
+}
+.optional-camera-section {
+  /* keep its dark background */
+  background-color: #1e1e1e;
+  padding: 0.5em;
+  border: 1px solid #444;
+  border-radius: 6px;
+}
+
+.audio-select-dropdown {
+    width: 100%;
+    padding: 0.5rem;
+    background-color: #2e2e2e;
+    border: none;
+    border-radius: 4px;
+    color: #e0e0e0;
+    margin-top: 0.25rem;
+}
+
+button.clear-video-button {
+    background-color: #b00020;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 1rem;
+    margin-right: 1rem;
+}
+button.clear-video-button:hover {
+    background-color: #910016;
+}
+
+.delay-config {
+  flex: 1 1 25%;                     /* Takes up 25% of the width */
+  max-width: 250px;                  /* Control the width of the delay panel */
+  min-width: 250px;                  /* Prevents it from becoming too narrow */
+  box-sizing: border-box;            /* Prevents overflow */
+  margin-top: 0;                     /* Align with other fields */
+}
+
+.delay-config label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.delay-config small {
+  white-space: normal; /* Allow the text to wrap naturally */
+  word-wrap: break-word; /* Break long words if necessary */
+  max-width: 100%; /* Make the text occupy full width */
+  display: block; /* Ensure it behaves like a block element */
+  word-break: break-word; /* Break long words and allow wrapping */
+}
+
+.delay-input {
+  width: 100%;
+  max-width: 200px;
+  padding: 0.5rem;
+  background-color: #2e2e2e;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #e0e0e0;
+}
+
+.delay-warning {
+  font-size: 0.85rem;
+  color: #f5c842;
+  margin-top: 0.5rem;
+  line-height: 1.4;
+}
+
+.form-text {
+  font-size: 0.85rem;                /* Slightly smaller text */
+  line-height: 1.4;                  /* Improves readability */
+}
+
+input,
+select {
+  width: 100%;                       /* Ensures input/select takes up full space */
+  padding: 0.5rem;                   /* Adds padding */
+  background-color: #2e2e2e;         /* Matches dark theme */
+  border: 1px solid #444;            /* Border for visibility */
+  border-radius: 4px;                /* Rounded corners */
+  color: #e0e0e0;                    /* Text color */
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+  width: auto;                       /* Ensures radio buttons and checkboxes stay at their default size */
+  margin-right: 5px;                 /* Adds space between the checkbox/radio and its label */
+}
+
+.audio-name-input {
+       width: 200px;
+       padding: 0.5rem;
+       background-color: #2e2e2e;
+       border: 1px solid #444;
+       border-radius: 4px;
+       color: #e0e0e0;
+       margin-left: 0.5rem;
+}
+
+/* Additional CSS for remove button only */
+
+.remove-audio-btn {
+  background-color: #b00020 !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 4px !important;
+  padding: 0.5rem !important;
+  cursor: pointer !important;
+  font-size: 1rem !important;
+  line-height: 1 !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+.remove-audio-btn:hover {
+  background-color: #910016 !important;
+}

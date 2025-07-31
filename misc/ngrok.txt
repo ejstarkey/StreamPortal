@@ -1,0 +1,7 @@
+ngrok configuration
+
+on_http_request:
+  - expressions:
+      - "!ip.src.eq('192.250.232.11')"
+    actions:
+      - type: deny

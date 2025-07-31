@@ -1,0 +1,26 @@
+[Unit]
+Description=Cornerpin Service Monitor Daemon
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=cornerpins
+Group=cornerpins
+WorkingDirectory=/home/cornerpins/portal
+ExecStart=/home/cornerpins/portal/venv/bin/python3 /home/cornerpins/portal/service_monitor.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+Environment=PYTHONPATH=/home/cornerpins/portal
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/tmp /home/cornerpins/portal
+
+[Install]
+WantedBy=multi-user.target

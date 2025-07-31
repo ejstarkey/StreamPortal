@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎳 Camera Control</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/camera_control.css') }}">
+</head>
+<body>
+    <div class="compact-container">
+        <h1>🎳 Camera Control</h1>
+        
+        <div class="main-layout">
+            <!-- Left: Cameras -->
+            <div class="left-panel">
+                <div class="camera-selector-compact">
+                    <select id="selected-camera">
+                        <option value="">Select Camera...</option>
+                        {% for camera_id, config in cameras.items() %}
+                        <option value="{{ camera_id }}" data-type="{{ config.type }}">{{ config.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="camera-grid-compact">
+                    {% for camera_id, config in cameras.items() %}
+                    <div class="camera-card-compact" data-camera-id="{{ camera_id }}">
+                        <div class="camera-info-compact">
+                            <div>
+                                <strong>{{ config.type.replace('_', ' ')|title }}</strong><br>
+                                <small>{{ config.lane_pair }}</small>
+                            </div>
+                            <div>
+                                <span class="status-indicator-compact" id="status-{{ camera_id }}">●</span>
+                                <button class="btn-micro" data-camera-id="{{ camera_id }}">Sel</button>
+                                <button class="btn-micro" data-camera-id="{{ camera_id }}">📸</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="discovery-compact">
+                    <button class="btn btn-primary btn-small" id="discover-cameras-btn">🔍 Discover</button>
+                    <button class="btn btn-secondary btn-small" id="add-manual-camera-btn">+ Manual</button>
+                </div>
+            </div>
+            
+            <!-- Center: Controls -->
+            <div class="center-panel">
+                <div class="presets-row">
+                    <h3>Presets</h3>
+                    <div class="preset-buttons-compact">
+                        <button class="preset-btn-compact" data-preset="pin_deck">🎳 Pins</button>
+                        <button class="preset-btn-compact" data-preset="approach">🏃 App</button>
+                        <button class="preset-btn-compact" data-preset="player">👤 Ply</button>
+                        <button class="preset-btn-compact" data-preset="wide">📐 Wide</button>
+                        <button class="preset-btn-compact" data-preset="scoring">📊 Score</button>
+                        <button class="preset-btn-compact" data-preset="ball_return">🔄 Ret</button>
+                        <button class="preset-btn-compact" data-preset="settee">💺 Seat</button>
+                        <button class="preset-btn-compact" data-preset="overview">🔭 Over</button>
+                    </div>
+                </div>
+                
+                <div class="ptz-section">
+                    <h3>PTZ</h3>
+                    <div class="ptz-layout">
+                        <div class="ptz-grid-compact">
+                            <div></div>
+                            <button class="ptz-btn-compact" data-operation="up">↑</button>
+                            <div></div>
+                            <button class="ptz-btn-compact" data-operation="left">←</button>
+                            <button class="ptz-btn-compact center">🎯</button>
+                            <button class="ptz-btn-compact" data-operation="right">→</button>
+                            <div></div>
+                            <button class="ptz-btn-compact" data-operation="down">↓</button>
+                            <div></div>
+                        </div>
+                        <div class="zoom-controls-compact">
+                            <button class="ptz-btn-compact" data-operation="zoom_in">+</button>
+                            <button class="ptz-btn-compact" data-operation="zoom_out">-</button>
+                        </div>
+                        <div class="speed-control-compact">
+                            <span>Speed:</span>
+                            <input type="range" id="ptz-speed" min="1" max="64" value="32">
+                            <span id="speed-value">32</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="manual-controls">
+                    <div class="preset-manual">
+                        <input type="number" id="preset-number" min="1" max="8" value="1">
+                        <button class="btn btn-small" id="set-preset-btn">Set</button>
+                        <button class="btn btn-small" id="goto-preset-btn">Go</button>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-success btn-small" id="take-snapshot-btn">📸</button>
+                        <button class="btn btn-toggle btn-small" id="spotlight-toggle" data-state="off">💡 <span class="state">OFF</span></button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right: Settings -->
+            <div class="right-panel">
+                <div class="broadcast-modes-compact">
+                    <h3>Mode</h3>
+                    <div class="mode-buttons">
+                        <button class="mode-btn-compact" data-mode="standard">📺</button>
+                        <button class="mode-btn-compact" data-mode="action">⚡</button>
+                        <button class="mode-btn-compact" data-mode="low_light">🌙</button>
+                    </div>
+                </div>
+                
+                <div class="detection-compact">
+                    <h3>Detection</h3>
+                    <label class="checkbox-compact">
+                        <input type="checkbox" id="motion-detection" checked> Motion
+                    </label>
+                    <label class="checkbox-compact">
+                        <input type="checkbox" id="person-detection" checked> Players
+                    </label>
+                    <div class="sensitivity-compact">
+                        <span>Sens:</span>
+                        <input type="range" id="sensitivity-slider" min="1" max="100" value="75">
+                        <span id="sensitivity-value">75</span>
+                    </div>
+                    <button class="btn btn-primary btn-small" id="save-detection-btn">Save</button>
+                </div>
+                
+                <div class="bulk-compact">
+                    <h3>Bulk</h3>
+                    <div class="bulk-selectors">
+                        <button class="btn-small" data-type="main_lane">Main</button>
+                        <button class="btn-small" data-type="pin_cam">Pin</button>
+                        <button class="btn-small" data-type="player_cam">Player</button>
+                        <button class="btn-small" data-type="all">All</button>
+                    </div>
+                    <div class="bulk-actions-compact">
+                        <select id="bulk-preset-select">
+                            {% for preset_id, preset_name in bowling_presets.items() %}
+                            <option value="{{ preset_id }}">{{ preset_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="btn btn-primary btn-small" id="bulk-preset-btn">Go</button>
+                        <button class="btn btn-warning btn-small" id="bulk-spotlight-btn">💡</button>
+                    </div>
+                </div>
+                
+                <div class="snapshots-compact">
+                    <h3>Snapshots</h3>
+                    <div class="snapshot-grid-compact" id="snapshot-grid"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            <div class="keyboard-shortcuts">WASD=PTZ | +/-=Zoom | Space=Snap | L=Light | 1-8=Presets</div>
+            <div class="connection-status" id="connection-status">Ready</div>
+        </div>
+    </div>
+    
+    <!-- Compact Modals -->
+    <div class="modal-compact" id="import-cameras-modal">
+        <div class="modal-content-compact">
+            <div class="modal-header-compact">
+                <h3>Import Cameras</h3>
+                <span class="close" id="close-import-modal">&times;</span>
+            </div>
+            <div class="modal-body-compact">
+                <div id="import-cameras-form"></div>
+                <div class="form-actions">
+                    <button class="btn btn-success btn-small" id="import-cameras-btn">Import</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-compact" id="add-manual-camera-modal">
+        <div class="modal-content-compact">
+            <div class="modal-header-compact">
+                <h3>Add Camera</h3>
+                <span class="close" id="close-manual-modal">&times;</span>
+            </div>
+            <div class="modal-body-compact">
+                <form id="manual-camera-form" class="form-compact">
+                    <div class="form-row">
+                        <input type="text" id="manual-camera-name" placeholder="Name" required>
+                        <input type="text" id="manual-camera-ip" placeholder="IP" required>
+                    </div>
+                    <div class="form-row">
+                        <input type="text" id="manual-camera-username" value="admin" required>
+                        <input type="password" id="manual-camera-password" placeholder="Password" required>
+                    </div>
+                    <div class="form-row">
+                        <select id="manual-camera-type" required>
+                            <option value="main_lane">Main</option>
+                            <option value="pin_cam">Pin</option>
+                            <option value="player_cam">Player</option>
+                            <option value="manual">Other</option>
+                        </select>
+                        <input type="text" id="manual-camera-lane" placeholder="Lane">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-small">Add</button>
+                        <button type="button" class="btn btn-secondary btn-small" id="cancel-manual-camera">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div id="status-messages"></div>
+    
+    <script src="{{ url_for('static', filename='js/camera_control.js') }}"></script>
+</body>
+</html>-section">
+                    <h3>PTZ Control</h3>
+                    <div class="ptz-layout">
+                        <div class="ptz-grid-compact">
+                            <div></div>
+                            <button class="ptz-btn-compact" data-operation="up">↑</button>
+                            <div></div>
+                            <button class="ptz-btn-compact" data-operation="left">←</button>
+                            <button class="ptz-btn-compact center">🎯</button>
+                            <button class="ptz-btn-compact" data-operation="right">→</button>
+                            <div></div>
+                            <button class="ptz-btn-compact" data-operation="down">↓</button>
+                            <div></div>
+                        </div>
+                        <div class="zoom-controls-compact">
+                            <button class="ptz-btn-compact" data-operation="zoom_in">+</button>
+                            <button class="ptz-btn-compact" data-operation="zoom_out">-</button>
+                        </div>
+                        <div class="speed-control-compact">
+                            <label>Speed:</label>
+                            <input type="range" id="ptz-speed" min="1" max="64" value="32">
+                            <span id="speed-value">32</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Manual Presets & Actions -->
+                <div class="manual-controls">
+                    <div class="preset-manual">
+                        <input type="number" id="preset-number" min="1" max="8" value="1" placeholder="1-8">
+                        <button class="btn btn-small" id="set-preset-btn">Set</button>
+                        <button class="btn btn-small" id="goto-preset-btn">Go</button>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-success btn-small" id="take-snapshot-btn">📸 Snap</button>
+                        <button class="btn btn-toggle btn-small" id="spotlight-toggle" data-state="off">💡 <span class="state">OFF</span></button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Panel: Settings & Bulk -->
+            <div class="right-panel">
+                <!-- Broadcast Modes -->
+                <div class="broadcast-modes-compact">
+                    <h3>Broadcast Mode</h3>
+                    <div class="mode-buttons">
+                        <button class="mode-btn-compact" data-mode="standard">📺</button>
+                        <button class="mode-btn-compact" data-mode="action">⚡</button>
+                        <button class="mode-btn-compact" data-mode="low_light">🌙</button>
+                    </div>
+                </div>
+                
+                <!-- Detection Settings -->
+                <div class="detection-compact">
+                    <h3>Detection</h3>
+                    <label class="checkbox-compact">
+                        <input type="checkbox" id="motion-detection" checked> Ball Motion
+                    </label>
+                    <label class="checkbox-compact">
+                        <input type="checkbox" id="person-detection" checked> Players
+                    </label>
+                    <div class="sensitivity-compact">
+                        <label>Sensitivity:</label>
+                        <input type="range" id="sensitivity-slider" min="1" max="100" value="75">
+                        <span id="sensitivity-value">75</span>
+                    </div>
+                    <button class="btn btn-primary btn-small" id="save-detection-btn">Save</button>
+                </div>
+                
+                <!-- Bulk Operations -->
+                <div class="bulk-compact">
+                    <h3>Bulk Control</h3>
+                    <div class="bulk-selectors">
+                        <button class="btn-small" data-type="main_lane">Main</button>
+                        <button class="btn-small" data-type="pin_cam">Pin</button>
+                        <button class="btn-small" data-type="player_cam">Player</button>
+                        <button class="btn-small" data-type="all">All</button>
+                    </div>
+                    <div class="bulk-actions-compact">
+                        <select id="bulk-preset-select">
+                            {% for preset_id, preset_name in bowling_presets.items() %}
+                            <option value="{{ preset_id }}">{{ preset_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="btn btn-primary btn-small" id="bulk-preset-btn">Go</button>
+                        <button class="btn btn-warning btn-small" id="bulk-spotlight-btn">💡 All</button>
+                    </div>
+                </div>
+                
+                <!-- Recent Snapshots -->
+                <div class="snapshots-compact">
+                    <h3>Recent Snapshots</h3>
+                    <div class="snapshot-grid-compact" id="snapshot-grid">
+                        <!-- Snapshots will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Status Bar -->
+        <div class="status-bar">
+            <div class="keyboard-shortcuts">
+                <strong>Shortcuts:</strong> WASD/Arrows=PTZ | +/-=Zoom | Space=Snap | L=Light | 1-8=Presets
+            </div>
+            <div class="connection-status" id="connection-status">
+                Ready
+            </div>
+        </div>
+    </div>
+    
+    <!-- Compact Modals -->
+    <div class="modal-compact" id="import-cameras-modal">
+        <div class="modal-content-compact">
+            <div class="modal-header-compact">
+                <h3>Import Discovered Cameras</h3>
+                <span class="close" id="close-import-modal">&times;</span>
+            </div>
+            <div class="modal-body-compact">
+                <div id="import-cameras-form"></div>
+                <div class="form-actions">
+                    <button class="btn btn-success" id="import-cameras-btn">Import Selected</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-compact" id="add-manual-camera-modal">
+        <div class="modal-content-compact">
+            <div class="modal-header-compact">
+                <h3>Add Manual Camera</h3>
+                <span class="close" id="close-manual-modal">&times;</span>
+            </div>
+            <div class="modal-body-compact">
+                <form id="manual-camera-form" class="form-compact">
+                    <div class="form-row">
+                        <input type="text" id="manual-camera-name" placeholder="Camera Name" required>
+                        <input type="text" id="manual-camera-ip" placeholder="IP Address" required>
+                    </div>
+                    <div class="form-row">
+                        <input type="text" id="manual-camera-username" value="admin" placeholder="Username" required>
+                        <input type="password" id="manual-camera-password" placeholder="Password" required>
+                    </div>
+                    <div class="form-row">
+                        <select id="manual-camera-type" required>
+                            <option value="main_lane">Main Lane</option>
+                            <option value="pin_cam">Pin Camera</option>
+                            <option value="player_cam">Player Camera</option>
+                            <option value="manual">Other</option>
+                        </select>
+                        <input type="text" id="manual-camera-lane" placeholder="Lane Pair">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Add</button>
+                        <button type="button" class="btn btn-secondary" id="cancel-manual-camera">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Status Messages -->
+    <div id="status-messages"></div>
+    
+    <script src="{{ url_for('static', filename='js/camera_control.js') }}"></script>
+</body>
+</html>

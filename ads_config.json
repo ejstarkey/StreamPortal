@@ -1,0 +1,16 @@
+{
+  "mode": "TEAM",
+  "team": {
+    "halfway_enabled": false,
+    "halfway_duration": 30,
+    "lane_change_delay": 30,
+    "lane_change_duration": 180
+  },
+  "cup": {
+    "halfway_enabled": false,
+    "halfway_duration": 30,
+    "game_change_duration": 30,
+    "lane_change_delay": 15,
+    "lane_change_duration": 120
+  }
+}

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Streaming Portal</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/loadingUtils.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=6">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/services.css') }}?v=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tweak.css') }}?v=11">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}?v=1">
+  {% block head %}{% endblock %}
+</head>
+
+<body>
+
+  <div class="container">
+
+    <header>
+
+      <a id="stream-button" class="header-stream-button" href="#">NOT<br>STREAMING</a>
+
+      <div class="logo-container">
+        <img src="{{ url_for('static', filename='images/logo.png') }}?v=1" alt="Logo" class="logo">
+        <span class="portal-title">Streaming Portal</span>
+      </div>
+
+      {% if logged_in %}
+
+        <nav class="header-nav">
+
+          <div class="menu-container">
+            <button id="menu-toggle-btn" class="menu-toggle">☰ Menu</button>
+            <div id="menu-dropdown">
+              <a href="{{ url_for('dashboard') }}">Dashboard</a>
+              <a href="{{ url_for('event_details') }}">Event Details</a>
+              <a href="#" id="services-popup-btn" class="nav-button service-button">Services</a>
+              <a href="javascript:void(0)" id="tweak-popup-btn">RTMP Tweak</a>
+              <a href="{{ url_for('preview_scenes') }}" target="_blank" rel="noopener">Scene Viewer</a>
+              <a href="{{ url_for('advertising') }}">Advertising Manager</a>
+              <a href="{{ url_for('mixer') }}">Audio Mixer</a>
+              <a href="{{ url_for('logs') }}">System Logs</a>
+            </div>
+          </div>
+
+          <form action="{{ url_for('logout') }}" method="post" class="logout-form">
+            <button type="submit" class="nav-button logout-button">
+              Logout
+            </button>
+          </form>
+
+        </nav>
+
+      {% endif %}
+
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+
+        <div class="flash-container">
+          {% for category, msg in messages %}
+            <div class="flash {{ category }}">{{ msg|safe }}</div>
+          {% endfor %}
+        </div>
+
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+
+  </div>
+
+<!-- Services Modal -->
+<div id="services-modal" class="modal">
+  <div class="modal-content">
+    <span id="close-services-modal" class="modal-close">&times;</span>
+    <h3 class="text-xl font-semibold mb-4">Live System Services</h3>
+
+    <!-- ✅ TAB CONTROLS -->
+    <div class="status-tabs">
+      <div class="status-tab active" id="tab-system" onclick="switchTab('system')">System</div>
+      <div class="status-tab" id="tab-cameras" onclick="switchTab('cameras')">Cameras</div>
+      <div class="status-tab" id="tab-livescores" onclick="switchTab('livescores')">Livescores</div>
+      <div class="status-tab" id="tab-dhcp" onclick="switchTab('dhcp')">DHCP Server</div>
+    </div>
+
+    <!-- ✅ STATUS ITEM HOLDER -->
+    <div class="status-grid" id="status-items">
+      <!-- JS will populate this -->
+    </div>
+
+    <!-- DHCP Server Tab Content -->
+    <div class="dhcp-reservations" id="tab-dhcp-content" style="display:none;">
+      <!-- NIC Selection Section -->
+      <div class="nic-selectors">
+        <h4>NIC Configuration</h4>
+        <div class="nic-selection-row">
+          <div class="nic-input-group">
+            <label for="lan-nic">LAN NIC (DHCP Authority)</label>
+            <select id="lan-nic"></select>
+          </div>
+          <div class="nic-input-group">
+            <label for="wan-nic">WAN NIC (Internet)</label>
+            <select id="wan-nic"></select>
+          </div>
+        </div>
+      </div>
+
+      <h4>Camera IP Reservations</h4>
+      <p class="dhcp-info-message">
+        ℹ️ All camera lanes are shown regardless of enabled status. DHCP reservations are preserved even when cameras are disabled.
+      </p>
+      
+      <form id="dhcp-form">
+        <table class="dhcp-table">
+          <thead>
+            <tr>
+              <th>Lane Pair</th>
+              <th>Static IP</th>
+              <th>MAC Address</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="camera-reservations">
+            <!-- Populated dynamically by JS -->
+          </tbody>
+        </table>
+
+        <div class="switch-header">
+          <h4>Switch IP Reservations</h4>
+          <button type="button" id="add-switch-btn" class="add-switch-button">
+            ➕ Add Switch
+          </button>
+        </div>
+        
+        <table class="dhcp-table">
+          <thead>
+            <tr>
+              <th>Switch Name</th>
+              <th>Static IP</th>
+              <th>MAC Address</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="switch-reservations">
+            <!-- Populated dynamically by JS -->
+          </tbody>
+        </table>
+
+        <div class="form-actions">
+          <button type="button" id="start-dhcp-btn" class="dhcp-control-btn start">Start DHCP Server</button>
+          <button type="button" id="stop-dhcp-btn" class="dhcp-control-btn stop">Stop DHCP Server</button>
+          <button type="button" id="save-dhcp-btn">Save DHCP Config</button>
+          <button type="button" id="restart-dhcp-btn">Restart DHCP Service</button>
+        </div>
+
+        <!-- ✅ SYSTEM REBOOT / SHUTDOWN -->
+        <div id="system-controls">
+          <button id="restart-system">Restart</button>
+          <button id="shutdown-system">Shutdown</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- RTMP Tweak Modal - ENHANCED VERSION with per-stream settings -->
+<div id="tweak-modal" class="tweak-modal">
+  <div class="tweak-modal-content">
+    <span id="close-tweak-modal" class="modal-close">&times;</span>
+    <h3 class="text-xl font-semibold mb-4">🔧 RTMP Tweak: Advanced Streaming Settings</h3>
+    
+    <!-- GPU Monitoring Section -->
+    <div class="gpu-monitor-section">
+        <h4>🎮 GPU Status & Performance</h4>
+        <div id="gpu-status" class="gpu-status">
+            <div class="gpu-loading">Loading GPU information...</div>
+        </div>
+        <button id="refresh-gpu" class="refresh-btn" onclick="refreshGpuData()">🔄 Refresh GPU Data</button>
+    </div>
+
+    <!-- Multi-RTMP Status Section -->
+    <div class="multi-rtmp-section">
+        <h4>🎬 Multi-RTMP Status</h4>
+        <div id="multi-rtmp-status" class="multi-rtmp-status">
+            <div class="status-loading">Loading Multi-RTMP status...</div>
+        </div>
+        <button id="refresh-multi-rtmp" class="refresh-btn" onclick="refreshMultiRtmpStatus()">🔄 Refresh Status</button>
+    </div>
+
+    <!-- Stream Tabs for Per-Stream Settings -->
+    <div class="stream-settings-section">
+        <h4>⚙️ Encoding Settings</h4>
+        <div id="stream-tabs" class="stream-tabs">
+            <!-- Populated by JavaScript -->
+        </div>
+        
+        <!-- Settings Panels -->
+        <div id="stream-settings" class="stream-settings">
+            <!-- Populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Save Button -->
+    <div class="form-actions">
+        <button type="button" id="save-rtmp-settings" onclick="saveRtmpSettings()">💾 Apply RTMP Settings</button>
+    </div>
+  </div>
+</div>
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/loadingUtils.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/stream_toggle.js') }}?v=6"></script>
+  <script src="{{ url_for('static', filename='js/services.js') }}?v=1"></script>
+  <script src="{{ url_for('static', filename='js/tweak.js') }}?v=11"></script>
+  <script src="{{ url_for('static', filename='js/menu.js') }}?v=2"></script>
+{% endblock %}
+
+</body>
+
+</html>

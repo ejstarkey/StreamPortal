@@ -1,0 +1,18 @@
+[
+  {
+    "id": "1211c2abf09e440282106607286fe54b",
+    "name": "Lexus of Townsville",
+    "filename": "1211c2abf09e440282106607286fe54b_lexus.jpg",
+    "type": "Image",
+    "duration": 15,
+    "streams": [
+      "1&2",
+      "3&4",
+      "5&6",
+      "7&8",
+      "9&10",
+      "11&12"
+    ],
+    "priority": 5
+  }
+]

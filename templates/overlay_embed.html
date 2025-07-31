@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Scoring Overlay</title>
+
+  <!-- 1) Auto-refresh every 5s -->
+  
+  <!-- 2) Original Computerscore CSS for perfect styling -->
+  <link rel="stylesheet" href="https://livescores.computerscore.com.au/css/background.css">
+  <link rel="stylesheet" href="https://livescores.computerscore.com.au/css/master-viewlanes.css">
+  <link rel="stylesheet" href="https://livescores.computerscore.com.au/css/fg-orange.css">
+  <link rel="stylesheet" href="https://livescores.computerscore.com.au/css/pindicat.css">
+
+  <style>
+    /* Transparent full-page, clip at half-width */
+    html, body {
+      margin: 0; padding: 0;
+      background: transparent !important;
+      overflow: hidden;
+      width: 100%; height: 100%;
+    }
+    .scoring-container {
+      position: absolute;
+      bottom: 0;
+      width: 50%;
+      overflow: hidden;
+    }
+    .scoring-container.left  { left:  0; }
+    .scoring-container.right { right: 0; }
+
+    /* Let the original wrappers size themselves */
+    #wrapper,
+    #players-wrap {
+      width: auto !important;
+      max-width: none !important;
+    }
+
+    /* Hide that pin-indication row */
+    .lane-pindication {
+      display: none !important;
+    }
+
+    /* Hide only the real header-numbers & header-total inside #header .header-full */
+    #header .header-full .header-numbers,
+    #header .header-full .header-total {
+      visibility: hidden !important;
+    }
+
+    /* Prevent any accidental wrapping or scrollbars */
+    #players-wrap, #wrapper, body {
+      overflow: hidden !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- The only thing OBS needs to render -->
+  <div class="scoring-container {{ anchor }}">
+    {{ content | safe }}
+  </div>
+
+  <script>
+  function fitOverlay() {
+    const cont = document.querySelector('.scoring-container.{{ anchor }}');
+    const wrap = document.querySelector('#players-wrap');
+    if (!cont || !wrap) return;
+    const scale = cont.clientWidth / wrap.scrollWidth;
+    wrap.style.transformOrigin = 'left bottom';
+    wrap.style.transform = 'scale(' + scale + ')';
+  }
+
+  function updateScores() {
+    const currentUrl = window.location.pathname;
+    
+    fetch(currentUrl)
+      .then(response => response.text())
+      .then(html => {
+        const parser = new DOMParser();
+        const newDoc = parser.parseFromString(html, 'text/html');
+        const newContent = newDoc.querySelector('#players-wrap');
+        
+        if (newContent) {
+          const currentContent = document.querySelector('#players-wrap');
+          if (currentContent) {
+            // Preserve the current transform
+            const currentTransform = currentContent.style.transform;
+            
+            // Update the content
+            currentContent.innerHTML = newContent.innerHTML;
+            
+            // Reapply the transform immediately
+            currentContent.style.transform = currentTransform;
+          }
+        }
+      })
+      .catch(error => console.error('Update failed:', error));
+  }
+
+  // Initial setup
+  window.addEventListener('load', function() {
+    fitOverlay();
+    // Update scores every 5 seconds without page refresh
+    setInterval(updateScores, 1000);
+  });
+
+  window.addEventListener('resize', fitOverlay);
+  </script>
+</body>
+</html>

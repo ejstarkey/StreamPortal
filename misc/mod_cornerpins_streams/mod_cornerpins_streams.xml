@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="4.0" client="site">
+    <name>Cornerpins Streams</name>
+    <version>1.0</version>
+    <files>
+        <filename module="mod_cornerpins_streams">mod_cornerpins_streams.php</filename>
+        <filename>mod_cornerpins_streams.xml</filename>
+        <folder>tmpl</folder>
+        <folder>assets</folder>
+    </files>
+    <config>
+        <fields name="params">
+            <fieldset name="basic">
+                <field name="api_url" type="text" label="Flask API URL" default="http://localhost:1983/api/streams"/>
+            </fieldset>
+        </fields>
+    </config>
+</extension>

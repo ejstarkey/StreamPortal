@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="scene-preview-header">
+  <h2>OBS Scene Preview</h2>
+  <p>Live screenshot of each OBS scene (updates every 10 seconds)</p>
+</div>
+<div class="scene-grid">
+  {% for scene in scenes %}
+    <div class="scene-tile">
+      <h4>{{ scene.name }}</h4>
+      {% if scene.image %}
+        <img src="data:image/png;base64,{{ scene.image }}" width="100%" alt="{{ scene.name }} preview" onload="console.log('Image loaded for {{ scene.name }}')" onerror="console.error('Failed to load image for {{ scene.name }}')">
+      {% else %}
+        <p><em>No preview available</em></p>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/preview_scenes.js') }}"></script>
+{% endblock %}

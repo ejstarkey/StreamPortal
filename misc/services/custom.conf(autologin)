@@ -1,0 +1,11 @@
+[daemon]
+AutomaticLoginEnable=true
+AutomaticLogin=cornerpins
+
+[security]
+
+[xdmcp]
+
+[chooser]
+
+[debug]

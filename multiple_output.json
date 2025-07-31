@@ -1,0 +1,232 @@
+{
+  "outputs": [
+    {
+      "name": "Pair 1&2",
+      "enabled": true,
+      "server": "rtmp://a.rtmp.youtube.com/live2",
+      "key": "fjbt-p644-5954-sk88-7ywf",
+      "use_obs_settings": false,
+      "settings": {
+        "encoder": "obs_x264",
+        "bitrate": "6000",
+        "rate_control": "CBR",
+        "keyint_sec": 2,
+        "preset": "medium",
+        "profile": "high",
+        "gpu": "0",
+        "bf": 2,
+        "lookahead": false,
+        "psycho_aq": true
+      }
+    },
+    {
+      "name": "Pair 3&4",
+      "enabled": true,
+      "server": "rtmp://a.rtmp.youtube.com/live2",
+      "key": "tt4t-bpk9-93ur-8swg-57t6",
+      "use_obs_settings": false,
+      "settings": {
+        "encoder": "obs_x264",
+        "bitrate": "6000",
+        "rate_control": "CBR",
+        "keyint_sec": 2,
+        "preset": "medium",
+        "profile": "high",
+        "gpu": "0",
+        "bf": 2,
+        "lookahead": false,
+        "psycho_aq": true
+      }
+    },
+    {
+      "name": "Pair 5&6",
+      "enabled": true,
+      "server": "rtmp://a.rtmp.youtube.com/live2",
+      "key": "bryj-yrf0-70vc-hahg-f4fg",
+      "use_obs_settings": false,
+      "settings": {
+        "encoder": "obs_x264",
+        "bitrate": "6000",
+        "rate_control": "CBR",
+        "keyint_sec": 2,
+        "preset": "medium",
+        "profile": "high",
+        "gpu": "0",
+        "bf": 2,
+        "lookahead": false,
+        "psycho_aq": true
+      }
+    },
+    {
+      "name": "Pair 7&8",
+      "enabled": true,
+      "server": "rtmp://a.rtmp.youtube.com/live2",
+      "key": "cp11-dv3q-qqdw-sxmk-47xe",
+      "use_obs_settings": false,
+      "settings": {
+        "encoder": "obs_x264",
+        "bitrate": "6000",
+        "rate_control": "CBR",
+        "keyint_sec": 2,
+        "preset": "medium",
+        "profile": "high",
+        "gpu": "0",
+        "bf": 2,
+        "lookahead": false,
+        "psycho_aq": true
+      }
+    },
+    {
+      "name": "Pair 9&10",
+      "enabled": true,
+      "server": "rtmp://a.rtmp.youtube.com/live2",
+      "key": "rv13-de8m-gtpa-pgh1-15gy",
+      "use_obs_settings": false,
+      "settings": {
+        "encoder": "obs_x264",
+        "bitrate": "6000",
+        "rate_control": "CBR",
+        "keyint_sec": 2,
+        "preset": "medium",
+        "profile": "high",
+        "gpu": "0",
+        "bf": 2,
+        "lookahead": false,
+        "psycho_aq": true
+      }
+    },
+    {
+      "name": "Pair 11&12",
+      "enabled": true,
+      "server": "rtmp://a.rtmp.youtube.com/live2",
+      "key": "112h-mzgc-9b1b-31bh-208u",
+      "use_obs_settings": false,
+      "settings": {
+        "encoder": "obs_x264",
+        "bitrate": "6000",
+        "rate_control": "CBR",
+        "keyint_sec": 2,
+        "preset": "medium",
+        "profile": "high",
+        "gpu": "0",
+        "bf": 2,
+        "lookahead": false,
+        "psycho_aq": true
+      }
+    },
+    {
+      "name": "Pair 13&14",
+      "enabled": true,
+      "server": "rtmp://a.rtmp.youtube.com/live2",
+      "key": "t869-1rzd-kdeb-awvq-d3g4",
+      "use_obs_settings": false,
+      "settings": {
+        "encoder": "obs_x264",
+        "bitrate": "6000",
+        "rate_control": "CBR",
+        "keyint_sec": 2,
+        "preset": "medium",
+        "profile": "high",
+        "gpu": "0",
+        "bf": 2,
+        "lookahead": false,
+        "psycho_aq": true
+      }
+    },
+    {
+      "name": "Pair 15&16",
+      "enabled": true,
+      "server": "rtmp://a.rtmp.youtube.com/live2",
+      "key": "4d1d-j8f1-tk0j-krpx-000c",
+      "use_obs_settings": false,
+      "settings": {
+        "encoder": "obs_x264",
+        "bitrate": "6000",
+        "rate_control": "CBR",
+        "keyint_sec": 2,
+        "preset": "medium",
+        "profile": "high",
+        "gpu": "0",
+        "bf": 2,
+        "lookahead": false,
+        "psycho_aq": true
+      }
+    },
+    {
+      "name": "Pair 17&18",
+      "enabled": true,
+      "server": "rtmp://a.rtmp.youtube.com/live2",
+      "key": "2u4t-3srd-05j4-ed4v-bzj8",
+      "use_obs_settings": false,
+      "settings": {
+        "encoder": "obs_x264",
+        "bitrate": "6000",
+        "rate_control": "CBR",
+        "keyint_sec": 2,
+        "preset": "medium",
+        "profile": "high",
+        "gpu": "0",
+        "bf": 2,
+        "lookahead": false,
+        "psycho_aq": true
+      }
+    },
+    {
+      "name": "Pair 19&20",
+      "enabled": true,
+      "server": "rtmp://a.rtmp.youtube.com/live2",
+      "key": "x27w-pvhr-aam2-xxrf-agvm",
+      "use_obs_settings": false,
+      "settings": {
+        "encoder": "obs_x264",
+        "bitrate": "6000",
+        "rate_control": "CBR",
+        "keyint_sec": 2,
+        "preset": "medium",
+        "profile": "high",
+        "gpu": "0",
+        "bf": 2,
+        "lookahead": false,
+        "psycho_aq": true
+      }
+    },
+    {
+      "name": "Pair 21&22",
+      "enabled": true,
+      "server": "rtmp://a.rtmp.youtube.com/live2",
+      "key": "224a-zuyx-emf0-efqt-6ta9",
+      "use_obs_settings": false,
+      "settings": {
+        "encoder": "obs_x264",
+        "bitrate": "6000",
+        "rate_control": "CBR",
+        "keyint_sec": 2,
+        "preset": "medium",
+        "profile": "high",
+        "gpu": "0",
+        "bf": 2,
+        "lookahead": false,
+        "psycho_aq": true
+      }
+    },
+    {
+      "name": "Pair 23&24",
+      "enabled": true,
+      "server": "rtmp://a.rtmp.youtube.com/live2",
+      "key": "w15w-0see-hu6q-azk8-au1h",
+      "use_obs_settings": false,
+      "settings": {
+        "encoder": "obs_x264",
+        "bitrate": "6000",
+        "rate_control": "CBR",
+        "keyint_sec": 2,
+        "preset": "medium",
+        "profile": "high",
+        "gpu": "0",
+        "bf": 2,
+        "lookahead": false,
+        "psycho_aq": true
+      }
+    }
+  ]
+}

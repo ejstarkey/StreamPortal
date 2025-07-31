@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block head %}
+  {{ super() }}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/advertising.css') }}?v=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=1">
+{% endblock %}
+{% block content %}
+  <!-- Back to Dashboard -->
+  <div class="mb-6">
+    <a href="{{ url_for('dashboard') }}" class="back-button">&larr; Back to Dashboard</a>
+  </div>
+
+  <h2 class="text-2xl font-semibold mb-4">Advertising Management</h2>
+
+  {% if adverts and adverts|length %}
+    <table class="ads-table mb-6">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Filename</th>
+          <th>Type</th>
+          <th>Duration (s)</th>
+          <th>Streams</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ad in adverts %}
+          <tr>
+            <td>{{ ad.name }}</td>
+            <td>{{ ad.filename }}</td>
+            <td>{{ ad.type }}</td>
+            <td>{{ ad.duration or '-' if ad.type == 'Image' else '(Video)' }}</td>
+            <td>{{ ad.streams | join(', ') }}</td>
+            <td>
+              <form action="{{ url_for('delete_ad', ad_id=ad.id) }}" method="post" class="inline">
+                <button type="submit" class="delete-ad-button">Delete</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="text-gray-400 mb-6">No adverts uploaded yet.</p>
+  {% endif %}
+
+  <!-- Upload Ad Button -->
+  <button id="open-upload-modal" class="upload-ad-button mb-4">Upload Ad</button>
+
+  <!-- Config Button -->
+  <button id="open-config-modal" class="upload-ad-button mb-4">⚙️ Advanced Playback Settings</button>
+
+  <!-- Upload Modal -->
+  <div id="upload-modal" class="modal hidden">
+    <div class="modal-content">
+      <span id="close-upload-modal" class="modal-close">&times;</span>
+      <h3 class="text-xl font-semibold mb-4">Upload New Advert</h3>
+
+      <form id="ad-upload-form" action="{{ url_for('upload_advert') }}" method="post" enctype="multipart/form-data">
+        <div class="mb-4">
+          <label for="ad_name" class="form-label">Ad Name (description)</label>
+          <input type="text" name="ad_name" id="ad_name" required class="form-input" />
+        </div>
+
+        <div class="mb-4">
+          <label for="ad_file" class="form-label">Select File (Image or Video)</label>
+          <input type="file" name="ad_file" id="ad_file" accept="video/*,image/*" required class="form-input" />
+        </div>
+
+        <div class="mb-4 hidden" id="ad-duration-field">
+          <label for="ad_duration" class="form-label">Duration (seconds)</label>
+          <input type="number" name="ad_duration" id="ad_duration" min="1" class="form-input" />
+        </div>
+
+        <div class="mb-4">
+          <label for="ad_priority" class="form-label">Priority Weight (1 = low, 10 = high)</label>
+          <input type="number" name="ad_priority" id="ad_priority" min="1" max="10" value="5" class="form-input" />
+        </div>
+
+        <fieldset class="mb-4 enable-streams">
+          <legend class="form-label">Select Streams to Play On:</legend>
+          <div class="checkbox-grid">
+            {% for pair in lane_pairs %}
+              <label><input type="checkbox" name="streams" value="{{ pair.name }}" /> {{ pair.name }}</label>
+            {% endfor %}
+          </div>
+        </fieldset>
+
+        <button type="submit" class="save-ad-button">Save Advert</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Config Modal -->
+  <div id="config-modal" class="modal hidden">
+    <div class="modal-content">
+      <span id="close-config-modal" class="modal-close">&times;</span>
+      <h3 class="text-xl font-semibold mb-4">Advanced Playback Settings</h3>
+
+<form action="{{ url_for('save_ads_config') }}" method="post" class="ad-config-form">
+  <!-- Disclaimer -->
+  <p class="disclaimer mb-4">
+    Choose your advertising mode below. The configuration options will update depending on your selection.
+  </p>
+
+  <!-- Mode Switch -->
+  <div class="mb-6">
+    <label class="form-label">Playback Mode:</label>
+    <select name="mode" id="ad-mode-select" class="form-input">
+      <option value="TEAM" {% if ads_config.mode == 'TEAM' %}selected{% endif %}>TEAM MODE</option>
+      <option value="CUP" {% if ads_config.mode == 'CUP' %}selected{% endif %}>CUP MODE</option>
+    </select>
+  </div>
+
+  <!-- TEAM MODE Section -->
+  <fieldset id="team-mode-fields" class="ad-config-group">
+    <legend>👥🎽 TEAM MODE</legend>
+
+    <div class="form-group">
+      <label>
+        <input type="checkbox" name="team_halfway_enabled" id="team-halfway-check" {% if ads_config.team.halfway_enabled %}checked{% endif %}>
+        Enable Halfway Ad
+      </label>
+    </div>
+
+    <div class="form-group team-halfway-fields">
+      <label>Halfway Ad Duration (seconds)</label>
+      <input type="number" name="team_halfway" value="{{ ads_config.team.halfway_duration }}" class="form-input" />
+    </div>
+
+    <div class="form-group">
+      <label>Lane Change Delay (seconds)</label>
+      <input type="number" name="team_delay" value="{{ ads_config.team.lane_change_delay }}" class="form-input" />
+    </div>
+    <div class="form-group">
+      <label>Lane Change Ad Duration (seconds)</label>
+      <input type="number" name="team_lane_change" value="{{ ads_config.team.lane_change_duration }}" class="form-input" />
+    </div>
+  </fieldset>
+
+  <!-- CUP MODE Section -->
+  <fieldset id="cup-mode-fields" class="ad-config-group mt-6">
+    <legend>🏆 CUP MODE</legend>
+
+    <div class="form-group">
+      <label>
+        <input type="checkbox" name="cup_halfway_enabled" id="cup-halfway-check" {% if ads_config.cup.halfway_enabled %}checked{% endif %}>
+        Enable Halfway Ad
+      </label>
+    </div>
+
+    <div class="form-group cup-halfway-fields">
+      <label>Halfway Ad Duration (seconds)</label>
+      <input type="number" name="cup_halfway" value="{{ ads_config.cup.halfway_duration }}" class="form-input" />
+    </div>
+
+    <div class="form-group">
+      <label>Game Change Ad Duration (seconds)</label>
+      <input type="number" name="cup_game_change" value="{{ ads_config.cup.game_change_duration }}" class="form-input" />
+    </div>
+    <div class="form-group">
+      <label>Lane Change Delay (seconds)</label>
+      <input type="number" name="cup_lane_delay" value="{{ ads_config.cup.lane_change_delay }}" class="form-input" />
+    </div>
+    <div class="form-group">
+      <label>Lane Change Ad Duration (seconds)</label>
+      <input type="number" name="cup_lane_duration" value="{{ ads_config.cup.lane_change_duration }}" class="form-input" />
+    </div>
+  </fieldset>
+
+  <button type="submit" class="save-ad-button mt-6">Save Config</button>
+</form>
+    </div>
+  </div>
+
+  <!-- Playback Log Table -->
+  <div class="mt-10">
+    <h3 class="text-xl font-semibold mb-4">Ad Playback History</h3>
+    {% if playback_log %}
+      <table class="ads-table mb-4">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Stream</th>
+            <th>Ad Name</th>
+            <th>Duration</th>
+            <th>Trigger</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in playback_log %}
+            <tr>
+              <td>{{ entry.timestamp }}</td>
+              <td>{{ entry.stream }}</td>
+              <td>{{ entry.ad_name }}</td>
+              <td>{{ entry.duration }}</td>
+              <td>{{ entry.trigger }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <a href="{{ url_for('download_ad_log') }}" class="bg-green-600 text-white px-4 py-2 rounded">Download CSV</a>
+    {% else %}
+      <p class="text-gray-400">No ad playback data yet.</p>
+    {% endif %}
+  </div>
+
+  <!-- External JS -->
+  <script src="{{ url_for('static', filename='js/advertising.js') }}"></script>
+{% endblock %}

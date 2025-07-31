@@ -1,0 +1,608 @@
+/*
+@font-face {
+    font-family: 'Swis721LtBTLight';
+    src: url('../fonts/swz721l-webfont.eot');
+    src: url('../fonts/swz721l-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/swz721l-webfont.woff') format('woff'),
+         url('../fonts/swz721l-webfont.ttf') format('truetype'),
+         url('../fonts/swz721l-webfont.svg#Swis721LtBTLight') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Swis721CnBTRoman';
+    src: url('../fonts/swz721c-webfont.eot');
+    src: url('../fonts/swz721c-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/swz721c-webfont.woff') format('woff'),
+         url('../fonts/swz721c-webfont.ttf') format('truetype'),
+         url('../fonts/swz721c-webfont.svg#Swis721CnBTRoman') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+*/
+
+@font-face {
+    font-family: 'Swis721BTBold'; 
+    src: local('swis721 bt'),
+         url('../fonts/swz721b-webfont.html'),
+         url('../fonts/swz721b-webfontd41d.html?#iefix') format('embedded-opentype'),
+         url('../fonts/swz721b-webfont.woff') format('woff'),
+         url('../fonts/swz721b-webfont-2.html') format('truetype'),
+         url('../fonts/swz721b-webfont-3.html#Swis721BTBold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Swis721BlkBTBlack'; 
+    src: local('swis721 blk bt'),
+         url('../fonts/swz721k-webfont.html'),
+         url('../fonts/swz721k-webfontd41d.html?#iefix') format('embedded-opentype'),
+         url('../fonts/swz721k-webfont.woff') format('woff'),
+         url('../fonts/swz721k-webfont-2.html') format('truetype'),
+         url('../fonts/swz721k-webfont-3.html#Swis721BlkBTBlack') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Helpfont';
+    src: local('swis721 blkcn bt'),
+         url('../fonts/swz721kc-webfont.html'),
+         url('../fonts/swz721kc-webfontd41d.html?#iefix') format('embedded-opentype'),
+         url('../fonts/swz721kc-webfont.woff') format('woff'),
+         url('../fonts/swz721kc-webfont-2.html') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Swis721BlkExBTBlack';
+    src: local('swis721 blkex bt'),
+         url('../fonts/swz721ke-webfont.html'),
+         url('../fonts/swz721ke-webfontd41d.html?#iefix') format('embedded-opentype'),
+         url('../fonts/swz721ke-webfont.woff') format('woff'),
+         url('../fonts/swz721ke-webfont-2.html') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+/**********************************
+
+@font-face {
+    font-family: 'Swis721LtBTLight';
+    src: url('../fonts.arial/arial-webfont.eot');
+    src: url('../fonts.arial/arial-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts.arial/arial-webfont.woff') format('woff'),
+         url('../fonts.arial/arial-webfont.ttf') format('truetype'),
+         url('../fonts.arial/arial-webfont.svg#Swis721LtBTLight') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'Swis721CnBTRoman';
+    src: url('../fonts.arial/arialn-webfont.eot');
+    src: url('../fonts.arial/arialn-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts.arial/arialn-webfont.woff') format('woff'),
+         url('../fonts.arial/arialn-webfont.ttf') format('truetype'),
+         url('../fonts.arial/arialn-webfont.svg#Swis721CnBTRoman') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'Swis721BTBold'; /* Normal */
+    src: url('../fonts.arial/arialbd-webfont.html');
+    src: url('../fonts.arial/arialbd-webfontd41d.html?#iefix') format('embedded-opentype'),
+         url('../fonts.arial/arialbd-webfont-2.html') format('woff'),
+         url('../fonts.arial/arialbd-webfont-3.html') format('truetype'),
+         url('../fonts.arial/arialbd-webfont-4.html#Swis721BTBold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Swis721BlkBTBlack'; /* Heavy */
+    src: url('../fonts.arial/ariblk-webfont.html');
+    src: url('../fonts.arial/ariblk-webfontd41d.html?#iefix') format('embedded-opentype'),
+         url('../fonts.arial/ariblk-webfont-2.html') format('woff'),
+         url('../fonts.arial/ariblk-webfont-3.html') format('truetype'),
+         url('../fonts.arial/ariblk-webfont-4.html#Swis721BlkBTBlack') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+*/
+/************* Using local font ********************
+
+@font-face {
+    font-family: 'Swis721LtBTLight';
+    src: local('Arial Regular');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Swis721CnBTRoman';
+    src: local('Arial Narrow');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Swis721BTBold'; /* Normal */
+    src: local('Arial Bold');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Swis721BlkBTBlack'; /* Heavy */
+    src: local('Arial Black');
+    font-weight: normal;
+    font-style: normal;
+}
+
+***************************/
+
+body { margin: 0; padding: 0; font-family: arial, helvetica, sans-serif;   }
+h1, h2, h3, h4, h5, h6, p { margin: 0; }
+* { color: #fff; font-size: 30px; letter-spacing: -0.03em; text-shadow: #202020 1px 1px 2px; line-height: 30px; text-transform: capitalize; }
+* {font-size: 30px; }
+.outline { /* color: #000!important; */ opacity: .50; } 
+
+/*
+.outline {-webkit-text-stroke: 1px #000; -webkit-text-fill-color: transparent;}
+*/
+
+/* ------------------------------------- */
+
+h1 { text-transform: none; }
+ul, ol { margin: 0; padding: 0; }
+ul li, ol li { list-style-type: none; padding: 0; margin: 0; }
+#wrapper { width: 1366px; height: 768px; /* background: url(../images/bg.png) no-repeat 0 0 #000; */ overflow: hidden; }
+#zoom-wrap {align: left; margin-left: 420px;
+-moz-transform: scale(1.62,1.0);  
+-ms-transform: scale(1.62,1.0); /* IE 9 */
+-webkit-transform: scale(1.62,1.0); /* Safari and Chrome */
+}
+#zoom-out {align: left; margin-top:-10px;
+-moz-transform: scale(1.00,1.35);  
+-ms-transform: scale(1.00,1.35); /* IE 9 */
+-webkit-transform: scale(1.00,1.35); /* Safari and Chrome */
+}
+#zoom-two {align: left; margin-top:-80px;
+-moz-transform: scale(1.00,1.35);  
+-ms-transform: scale(1.00,1.35); /* IE 9 */
+-webkit-transform: scale(1.00,1.35); /* Safari and Chrome */
+}
+#zoom-three {align: left; margin-top:-10px;
+-moz-transform: scale(1.00,1.15);  
+-ms-transform: scale(1.00,1.15); /* IE 9 */
+-webkit-transform: scale(1.00,1.15); /* Safari and Chrome */
+}
+#zoom-three-teams {align: left; margin-top:-25px;
+-moz-transform: scale(1.00,1.15);  
+-ms-transform: scale(1.00,1.15); /* IE 9 */
+-webkit-transform: scale(1.00,1.15); /* Safari and Chrome */
+}
+#zoom-doubles {align: left; margin-top:-8px;
+-moz-transform: scale(1.00,1.10);  
+-ms-transform: scale(1.00,1.10); /* IE 9 */
+-webkit-transform: scale(1.00,1.10); /* Safari and Chrome */
+}
+#zoom-view8 {align: left; margin-top: 8px;
+-moz-transform: scale(1.00,0.90);  
+-ms-transform: scale(1.00,0.90); /* IE 9 */
+-webkit-transform: scale(1.00,0.90); /* Safari and Chrome */
+}
+#zoom-view6 {align: left; margin-top: 0px;
+-moz-transform: scale(1.00,1.05);  
+-ms-transform: scale(1.00,1.05); /* IE 9 */
+-webkit-transform: scale(1.00,1.05); /* Safari and Chrome */
+}
+#zoom-view4 {align: left; margin-top: 0px;
+-moz-transform: scale(1.00,1.35);  
+-ms-transform: scale(1.00,1.35); /* IE 9 */
+-webkit-transform: scale(1.00,1.35); /* Safari and Chrome */
+}
+#zoom-view2 {align: left; margin-top: 0px;
+-moz-transform: scale(1.00,1.90);  
+-ms-transform: scale(1.00,1.90); /* IE 9 */
+-webkit-transform: scale(1.00,1.90); /* Safari and Chrome */
+}
+
+#zoom-view-open8 {align: left; margin-top: 8px;
+-moz-transform: scale(1.00,1.00);  
+-ms-transform: scale(1.00,1.00); /* IE 9 */
+-webkit-transform: scale(1.00,1.00); /* Safari and Chrome */
+}
+#zoom-view-open6 {align: left; margin-top: 0px;
+-moz-transform: scale(1.00,1.25);  
+-ms-transform: scale(1.00,1.25); /* IE 9 */
+-webkit-transform: scale(1.00,1.25); /* Safari and Chrome */
+}
+#zoom-view-open4 {align: left; margin-top: 0px;
+-moz-transform: scale(1.00,1.55);  
+-ms-transform: scale(1.00,1.55); /* IE 9 */
+-webkit-transform: scale(1.00,1.55); /* Safari and Chrome */
+}
+#zoom-view-open2 {align: left; margin-top: 0px;
+-moz-transform: scale(1.00,1.9);  
+-ms-transform: scale(1.00,1.9); /* IE 9 */
+-webkit-transform: scale(1.00,1.9); /* Safari and Chrome */
+}
+
+/**************
+@media only screen and (max-width: 1100px) { 
+	#wrapper { margin-left: -190px; margin-top: -40px; 
+	-moz-transform: scale(.72,.9);  
+	-ms-transform: scale(.72,.9); 
+	-webkit-transform: scale(.72,.9); 
+	}
+} 
+**************/
+
+#header { top: 0px; /* width: 1350px; */ width: 100%; padding: 0 8px; float: left; height: 41px; }
+#header * { font-size: 30px; font-weight: normal; }
+#header h1 { width: 207px; float: left; margin: 8px 0 0 0; }
+.header-numbers { margin: 8px 0 0 0; }
+.header-numbers li { float: left; width: 104px; text-align: center; }
+.header-total { text-transform: uppercase; }
+
+
+.icon-machine, .icon-crosslane, .icon-singleleft, .icon-singleright, .icon-grids, .icon-practice  { width: 36px; height: 35px; position: absolute; top: 0px; left: 10px; }
+.icon-machine { background: url(../images/foreground/icon-machine.png) no-repeat 0 0; left: 50px; }
+.icon-crosslane { background: url(../images/foreground/icon-crosslane.png) no-repeat 0 0; left: 10px;  }
+.icon-singleleft { background: url(../images/foreground/icon-singleleft.png) no-repeat 0 0; left: 10px;  }
+.icon-singleright { background: url(../images/foreground/icon-singleright.png) no-repeat 0 0; left: 10px;  }
+.icon-grids { background: url(../images/foreground/icon-grids.png) no-repeat 0 0; left: 10px;  }
+.icon-practice { background: url(../images/foreground/icon-practice.png) no-repeat 0 0; left: 10px;  }
+
+#players-wrap .player * { font-size: 36px; line-height: 0.9em; }
+#players-wrap .frame-name * { font-size: 30px; line-height: 1.0em; }
+
+
+#players-wrap { float: left; width: 100%; height: 502px; }
+.reduce-height-for-last-game { height: 388px!important; }
+#footer { float: left; width: 100%; text-align: center; }
+.player { float: left; width: 100%; position: relative; z-index: 100; }
+
+/* --- Initial Fixes for the Animated transition-- */
+.player-wrap { float: left; width: 100%; height: 88px; }
+.large-frames .player-wrap { float: left; width: 100%; height: 115px; }
+/* -------------------------------------- */
+
+.frame-name h2 { padding-left: 7px; }
+.frame-name-left { float: left; padding: 5px 0 0 8px; }
+.frame-name-total { color: #000; text-shadow: none; float: right; padding-right: 8px; }
+
+.bowl-first { float: left; width: 51px; height: 35px; text-align: center; }
+
+.bowl-arrow { float: left; width: 100%; height: 35px; }
+.bowl-total { float: right;  height: 35px;  padding-right: 25px; text-align: right; }
+
+.point-right, .point-left { width: 100%; height: 31px; float: left; }
+
+
+.error { color: #ff5454; }
+.spare.error { background: url(../images/foreground/icon-spare-error.png) no-repeat center center transparent; }
+.large-frames .spare.error { background: url(../images/foreground/icon-spare-error-lg.png) no-repeat center center transparent!important; }
+
+
+.skip { opacity:0.5!important; }
+.transparent { opacity:0.2!important; }
+
+.frame.final .bowl-first { width: 33px; }
+
+.player-total * { color: #000; text-shadow: none; }
+.player-total-top { float: left; width: 100%; height: 35px; }
+.player-total-btm { float: left; width: 94px; padding-right: 10px; text-align: right; }
+
+.lane-total { float: left; width: 1351px; height: 35px; padding: 0 8px; }
+.lane-total * { font-weight: normal; }
+
+.no-bg { background: none!important; }
+
+.header-full { float: left; width: 1350px; }
+.header-left { float: left; width: 672px;}
+/*.header-right { float: right; width: 622px; } */
+.header-right {float: right; width: 680px; }
+/* .header-right .header-numbers { margin-left: 207px; } */
+.header-right .header-numbers { margin-left: 204px; }
+.header-right h1 { padding-left: 48px; }
+
+.players-left-wrap { float: left; width: 680px;}
+.players-right-wrap { float: right; width: 638px; }
+.players-right-wrap .lane-total { width: 630px; padding: 0 0 0 8px; }
+
+
+/* ---------------------------------------------------------------------------------
+   RESIZE FOR LARGE FRAMES
+--------------------------------------------------------------------------------- */
+.large-frames #players-wrap .player * { font-size: 44px; line-height: 1.0em; }
+.large-frames #players-wrap .frame-name * { font-size: 36px; line-height: 1.3em; }
+.large-frames #players-wrap .bowl-first { height: 48px; }
+.large-frames #players-wrap .bowl-arrow { height: 48px; }
+.bowl-first, .bowl-second, .bowl-third { position: relative; }
+
+.large-frames .bowl-first .point { top: 40px; }
+.large-frames .bowl-second .point { top: 35px; }
+.large-frames .bowl-third .point { top: 35px; }
+
+.large-frames #players-wrap .bowl-total { height: 48px; width: 70px; line-height: 45px; } 
+
+.large-frames #players-wrap .player-total-top { height: 48px; }
+.large-frames #players-wrap .lane-total * { font-size: 30px!important; line-height: 1.0em!important; }
+
+
+
+/* ---------------------------------------------------------------------------------
+   ACTIVE PLAYER STYLES
+--------------------------------------------------------------------------------- */
+.active.player * { font-size: 33px; }
+
+.active .frame-name h2 { padding-left: 10px; }
+
+.active .frame .bowl-total { line-height: 24px; }
+.active .frame .bowl-first,
+.active .frame .bowl-second
+{ padding-top: 3px; }
+
+.active .frame.ready .bowl-first,
+.active .frame.ready .bowl-second,
+.active .frame.ready .bowl-arrow
+{ /* color: #000!important; */ }
+
+.active .frame .bowl-arrow.point-right { background-position: 8px 13px; }
+.active .frame .bowl-arrow.point-left { background-position: 8px 13px; }
+.active .player-total-top { height: 41px; }
+
+.active .bowl-arrow, .active .bowl-total { padding-top: 3px; }
+
+.large-frames #players-wrap .active.player * { font-size: 48px!important; } 
+.large-frames #players-wrap .active .frame-name * { font-size: 39px!important;  }
+.large-frames #players-wrap .active h2 { line-height: 44px; padding-left: 6px; }
+.large-frames #players-wrap .active .bowl-total { line-height: 38px;  }
+.large-frames #players-wrap .active .player-total-top { height: 51px; }
+
+/* .large-frames .active .bowl-total {padding-right: 36px;  text-align: right; float!important} */
+
+/* -- Fix for View other Lane (Splits lanes) --------- 
+.large-frames #players-wrap .players-left-wrap .active.player { width: 637px; }
+.large-frames #players-wrap .players-left-wrap .active .player-total { width: 108px; /* border-right: solid 2px #000;*/ }
+/*
+/* ------------------------ */
+
+.active-sm.player { margin-top: -10px; }
+.active-sm .frame-name h2 { padding-left: 15px; }
+
+
+/* ---------------------------------------------------------------------------------
+--------------------------------------------------------------------------------- */
+
+.full-length { float: left; width: 100%; padding-top: 13px; }
+
+#team-name { float: left; width: 100%; text-align: center; padding-top: 5px; }  
+#zoom-wrap #team-name {width: 81%; margin-left: -120px }
+
+#team-name h1 { text-transform: capitalize; } 
+
+
+
+
+/* ---------------------------------------------------------------------------------
+   FRAME PLAYER NUMBERS
+--------------------------------------------------------------------------------- */
+
+.team-two-player-doubles #header h1 { text-indent: 45px; }
+.team-two-player-doubles .shift { padding-top: 20px; }
+
+.ten-player #players-wrap #header { height: 45px; }
+.ten-player #players-wrap .header-left h1 { text-indent: 45px; }
+.ten-player .players-left-wrap, .ten-player .players-right-wrap { height: 405px; }
+
+.nine-player #players-wrap #header { height: 45px; }
+.nine-player #players-wrap .header-left h1 { text-indent: 45px; }
+.nine-player .players-left-wrap, .nine-player .players-right-wrap { height: 405px; }
+
+.eight-player #players-wrap #header, .eight-player #players-wrap #header { height: 45px; }
+.eight-player #players-wrap .header-left h1 { text-indent: 45px; }
+
+
+.seven-player #players-wrap .player, .eight-player #players-wrap .player { margin: 0 0 17px 0; }
+.seven-player #players-wrap .active.player, .eight-player #players-wrap .active.player { margin: -16px 0 2px 0; }
+.seven-player #players-wrap #header, .eight-player #players-wrap #header { height: 45px; }
+.seven-player #players-wrap .header-left h1 { text-indent: 45px; }
+
+.six-player #players-wrap #header h1 { text-indent: 45px; }
+
+.five-player #players-wrap .player { margin: 0 0 18px 0; }
+.five-player #players-wrap .active.player { margin: -15px 0 2px 0; }
+.five-player #players-wrap #header { height: 45px; }
+.five-player #players-wrap #header h1 { text-indent: 45px; }
+/*******
+.team-five-player #players-wrap .player { margin: -10px 0 -10px 0; }
+.team-five-player #players-wrap .active.player { margin: -10px 0 -10px 0; }
+.team-five-player #players-wrap #header { height: 45px; }
+.team-five-player #players-wrap #header h1 { text-indent: 45px; }
+.team-five-player #players-wrap .player { height: 85px; !important}
+*******/
+.five-singles #players-wrap .player { margin: 0px 0 -4px 0; } 
+.five-singles #players-wrap #header { height: 35px; margin-top: -4px; }
+.five-singles #players-wrap #header h1 { text-indent: 35px; }
+.five-singles #players-wrap .player { height: 98px; !important}
+
+.four-player #players-wrap .player { margin: 0 0 18px 0; }
+.four-player #players-wrap .active.player { margin: -15px 0 2px 0; }
+.four-player #players-wrap #header h1 { text-indent: 45px; }
+
+.three-player #players-wrap .player { margin: 0 0 30px 0; }
+.three-player #players-wrap .active.player { margin: -15px 0 14px 0; }
+.three-player #players-wrap #header { padding-top: 30px; height: 45px; }
+.three-player #players-wrap.reduce-height-for-last-game .player { margin: 0 0 12px 0; }
+.three-player #players-wrap.reduce-height-for-last-game .active.player { margin: -15px 0 -4px 0; }
+.three-player #players-wrap.reduce-height-for-last-game #header { padding-top: 0px; height: 35px; }
+.three-player #players-wrap.reduce-height-for-last-game #header h1 { text-indent: 45px; }
+
+.two-player #players-wrap .player { margin: 0 0 60px 0; }
+.two-player #players-wrap .active.player { margin: -15px 0 44px 0; }
+.two-player #players-wrap #header { padding-top: 80px; height: 45px; }
+
+.one-player #header { padding-top: 130px; height: 45px; }
+
+/* ---------------------------------------------------------------------------------
+   FRAME PLAYER NUMBERS // TEAM
+--------------------------------------------------------------------------------- */
+.team-ten-player #header h1 { text-indent: 45px; }
+.team-nine-player .players-left-wrap { height: 358px; }
+.team-nine-player #header h1 { text-indent: 45px; }
+.team-eight-player .players-left-wrap { height: 350px; }
+.team-eight-player #header h1 { text-indent: 45px; }
+.team-seven-player .players-left-wrap { height: 350px; }
+.team-seven-player #header h1 { text-indent: 45px; }
+.team-six-player #header h1 { text-indent: 45px; }
+.team-five-player #header h1 { text-indent: 45px; }
+.team-four-player #header h1 { text-indent: 45px; }
+.team-three-player #header { padding-top: 50px; height: 45px; }
+.team-two-player #header { padding-top: 80px; height: 45px; }
+
+/* ---------------------------------------------------------------------------------
+   FRAME PLAYER NUMBERS // LAST GAME ADJUSTMENTS
+--------------------------------------------------------------------------------- */
+
+/*************** not used ********************
+.ten-player.lastgame #last-game h1 { font-size: 0.85em; padding-top: 7px; }
+.ten-player.lastgame #players-wrap #header { padding-top: 0; height: 40px; }
+.team-ten-player.lastgame #last-game h1 { font-size: 0.85em; padding-top: 7px; }
+
+.nine-player.lastgame #players-wrap #header { padding-top: 0; height: 40px; }
+.nine-player.lastgame #last-game h1 { font-size: 0.85em; padding-top: 7px; }
+.team-nine-player.lastgame #last-game h1 { font-size: 0.85em; padding-top: 7px; }
+
+.five-player.lastgame #players-wrap #header { padding-top: 0; height: 40px; }
+.five-player.lastgame #players-wrap .player { margin: 0; }
+.five-player.lastgame #players-wrap .active.player { margin: -16px 0 -15px 0; }
+.five-player.lastgame #last-game h1 { font-size: 0.85em; padding-top: 7px; }
+
+.team-five-player.lastgame #players-wrap #header { padding-top: 40px; height: 45px; }
+.team-five-player.lastgame #players-wrap #header h1 { text-indent: 0px; }
+
+.four-player.lastgame #players-wrap .player { margin: 0 0 8px 0; }
+.four-player.lastgame #players-wrap .active.player { margin: -16px 0 -7px 0; }
+
+.team-three-player.lastgame #players-wrap #header { padding-top: 0px; height: 45px; }
+.team-three-player.lastgame #players-wrap #header h1 { text-indent: 45px; }
+
+.three-player.lastgame #players-wrap #header { padding-top: 0px; height: 45px; }
+.three-player.lastgame #players-wrap #header h1 { text-indent: 45px; }
+
+.two-player.lastgame #players-wrap .player { margin: 0 0 60px 0; }
+.two-player.lastgame #players-wrap .active.player { margin: -15px 0 44px 0; }
+.two-player.lastgame #players-wrap #header { padding-top: 30px; height: 45px; }
+
+.team-two-player.lastgame #players-wrap #header { padding-top: 50px; height: 45px; }
+************************************/
+
+
+/* ---------------------------------------------------------------------------------
+   PACERS
+--------------------------------------------------------------------------------- */
+.pacers-inc #players-wrap #header { padding-top: 0px; height: 45px; }
+.pacers-inc #players-wrap #header h1 { text-indent: 45px; }
+.pacers-inc #team-name { margin-bottom: 15px; }
+
+.shift-header #players-wrap #header { padding-top: 30px; height: 45px; }
+.shift-header #players-wrap #header h1 { text-indent: 0px; }
+
+
+
+/* ---------------------------------------------------------------------------------
+   SHOW LAST GAME
+--------------------------------------------------------------------------------- */
+#last-game { float: left; width: 100%; height: 114px; }
+#last-game h1 { font-weight: normal; text-indent: 8px; }
+
+
+/* ---------------------------------------------------------------------------------
+   FIVE FRAME
+--------------------------------------------------------------------------------- */
+.five-frame * { font-size: 36px; line-height: 0.9em; font-weight: bold;  }
+.five-frame .bowl-first { float: left; width: 86px; }
+.five-frame .bowl-second, .five-frame .bowl-third { width: 86px; }
+.five-frame .bowl-total { width: 86px; }
+.five-frame .player-total-btm { width: 164px; }
+.five-frame #header h1 { width: 307px; }
+.five-frame .header-numbers li { float: left; width: 174px; text-align: center; }
+
+/* ---------------------------------------------------------------------------------
+   FIVE FRAME // LARGE FRAMES
+--------------------------------------------------------------------------------- */
+.large-frames.five-frame * { font-size: 44px!important; line-height: 1.0em!important; }
+.large-frames.five-frame #header * { font-size: 36px!important; line-height: 0.8em!important; }
+.large-frames.five-frame .bowl-total { width: 94px!important; }
+
+
+
+/* -------- TEXT SHADOWING IN IE --------- */
+
+/*
+h2, .bowl-first, .bowl-total {
+    -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=90, Color='#000000')";
+
+    filter: progid:DXImageTransform.Microsoft.Shadow(Strength=3, Direction=90, Color='#000000');
+    filter:DropShadow(Color=#000000, OffX=2, OffY=2);
+    zoom: 1;
+}
+
+.active h2, .active .bowl-first, active .bowl-total {
+    -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=90, Color='#640707')";
+
+    filter: progid:DXImageTransform.Microsoft.Shadow(Strength=3, Direction=90, Color='#640707');
+    filter:DropShadow(Color=#640707, OffX=2, OffY=2);
+    zoom: 1; 
+}
+.active .ready .bowl-first {
+    -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=90, Color='#e08b8b')";
+
+    filter: progid:DXImageTransform.Microsoft.Shadow(Strength=3, Direction=90, Color='#e08b8b');
+    filter:DropShadow(Color=#e08b8b, OffX=2, OffY=2);
+    zoom: 1; 
+}
+*/
+
+
+
+body { font-family: 'Swis721BlkBTBlack', arial, sans-serif; }
+#header *, .lane-total * { font-family: 'Swis721LtBTLight', arial, sans-serif; }
+
+
+/* ---------------------------------------------------------------------------------
+   OVERWRITING WHAT'S IN COLOUR SETS
+--------------------------------------------------------------------------------- */
+
+.point-right { background: url(../images/foreground/arrow-small-right.gif) no-repeat center 4px!important; }  /*-- Small Frame, 2nd Ball --*/
+.point-left { background: url(../images/foreground/arrow-small-left.gif) no-repeat center 4px!important; }      /*-- Small Frame, 2nd Ball --*/
+.bowl-arrow.point-right { background: url(../images/foreground/arrow-small-right.gif) no-repeat 0px 4px!important; }  /*-- Small Frame, 1st Ball --*/
+.bowl-arrow.point-left { background: url(../images/foreground/arrow-small-left.gif) no-repeat 0px 4px!important; }      /*-- Small Frame, 1st Ball --*/
+
+.large-frames #players-wrap .point-right { background: url(../images/foreground/arrow-large-right.gif) no-repeat 0px 6px!important; height: 42px; }   /*-- Large Frame, 2nd Ball --*/
+.large-frames #players-wrap .point-left { background: url(../images/foreground/arrow-large-left.gif) no-repeat 0px 6px!important; height: 42px; }       /*-- Large Frame, 2nd Ball --*/
+.large-frames #players-wrap .bowl-arrow.point-right { background: url(../images/foreground/arrow-large-right.gif) no-repeat 0px 6px!important; }  /*-- Large Frame, 1st Ball --*/
+.large-frames #players-wrap .bowl-arrow.point-left { background: url(../images/foreground/arrow-large-left.gif) no-repeat 0px 6px!important; }      /*-- Large Frame, 1st Ball --*/
+
+.large-frames #players-wrap .active .point-right { background: url(../images/foreground/arrow-large-right.gif) no-repeat 0px 6px!important; }
+.large-frames #players-wrap .active .point-left { background: url(../images/foreground/arrow-large-left.gif) no-repeat 0px 6px!important; }
+.large-frames #players-wrap .active .bowl-arrow.point-right { background: url(../images/foreground/arrow-large-right.gif) no-repeat 0px 6px!important; }
+.large-frames #players-wrap .active .bowl-arrow.point-left { background: url(../images/foreground/arrow-large-left.gif) no-repeat 0px 6px!important; }
+
+.active-sm .frame.ready .bowl-arrow { background: url(../images/foreground/arrow-small-right.gif) no-repeat 0px 8px!important; }
+
+/--------------- some large-frame adjustments ----------------------------
+
+.player-total-top { font-size: 30px!important; }
+
+.large-frames #players-wrap .player-total-top {  font-size: 30px!important; }
+.large-frames #players-wrap .active .player-total-top { font-size: 30px!important; } 

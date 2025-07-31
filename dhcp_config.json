@@ -1,0 +1,32 @@
+{
+  "lan_ip": "192.168.83.83",
+  "subnet": "255.255.255.0",
+  "range_start": "192.168.83.100",
+  "range_end": "192.168.83.200",
+  "reservations": {
+    "Lane 1&2": "",
+    "Lane 3&4": "",
+    "Lane 5&6": "",
+    "Lane 7&8": "",
+    "Lane 9&10": "",
+    "Lane 11&12": "",
+    "Lane 13&14": "",
+    "Lane 15&16": "",
+    "Lane 17&18": "",
+    "Lane 19&20": "",
+    "Lane 21&22": "",
+    "Lane 23&24": "",
+    "Switch 1": "",
+    "Switch 2": "",
+    "Switch 3": "",
+    "Switch 4": "",
+    "Switch 5": "",
+    "Switch 6": "",
+    "Switch 7": "",
+    "Switch 8": "",
+    "Switch 9": "",
+    "Switch 10": "",
+    "Switch 11": "",
+    "Switch 12": ""
+  }
+}

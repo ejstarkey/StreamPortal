@@ -1,0 +1,166 @@
+/* ====== EVENT BANNER ====== */
+.event-banner {
+    max-width: 1400px;
+    margin: 0 auto; /* Remove bottom margin so it hugs the tiles */
+    text-align: center;
+    background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
+    padding: 1rem 2rem 0.5rem 2rem; /* Reduced bottom padding */
+    border-radius: 10px 10px 0 0; /* Rounded top only */
+    box-shadow: none; /* Remove floating card effect */
+    border-bottom: 1px solid #444; /* Smooth join to tile grid */
+}
+
+.event-banner img {
+    width: 100%; /* Full width of the banner container */
+    height: auto;
+    max-height: 150px;
+    border-radius: 6px;
+    display: block;
+    margin: 0 auto;
+    object-fit: contain; /* Maintain aspect ratio */
+}
+
+/* ====== STREAM TILE GRID: 4 per row ====== */
+
+#stream-tiles.stream-tiles {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Force 4 columns */
+    gap: 1.5rem;
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    justify-items: center;
+    box-sizing: border-box;
+    padding-top: 2; /* remove top padding to eliminate gap */
+    border-radius: 0 0 10px 10px; /* Rounded bottom only */
+    background: #1e1e1e; /* Match banner background for seamless look */
+}
+
+/* ====== Individual Stream Tile ====== */
+.stream-tile {
+    background: #1e1e1e;
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    color: #e0e0e0;
+    box-shadow: 0 0 10px #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%; /* fills 1 grid column */
+    max-width: 300px; /* prevents overly wide tiles */
+    cursor: pointer;
+}
+
+/* ====== Tile Label (Name) ====== */
+.stream-tile h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    color: #fff;
+    position: static;
+    width: 100%;
+    text-align: center;
+}
+
+/* ====== Tile Image ====== */
+.stream-image {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    display: block;
+}
+
+/* ====== Optional Stream Status Text ====== */
+.stream-status {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: #ffeb3b;
+}
+
+
+/* ====== MODAL STYLES (unchanged) ====== */
+
+#stream-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+}
+
+#stream-modal .modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    height: auto;
+    aspect-ratio: 16/9;
+    background: #000;
+}
+
+#stream-modal iframe {
+    width: 100%;
+    height: 100%;
+}
+
+#stream-modal .close-btn,
+#stream-modal .fullscreen-btn {
+    position: absolute;
+    top: 10px;
+    padding: 5px 10px;
+    background: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+#stream-modal .close-btn {
+    right: 80px;
+}
+
+#stream-modal .fullscreen-btn {
+    right: 10px;
+}
+
+
+/* ====== RESPONSIVE ADJUSTMENTS ====== */
+
+@media (max-width: 1200px) {
+    #stream-tiles.stream-tiles {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    #stream-tiles.stream-tiles {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .event-banner {
+        margin-bottom: 1.5rem;
+        padding: 0.75rem;
+    }
+    
+    .event-banner img {
+        max-height: 120px;
+    }
+}
+
+@media (max-width: 600px) {
+    #stream-tiles.stream-tiles {
+        grid-template-columns: 1fr;
+    }
+    
+    .event-banner {
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+    }
+    
+    .event-banner img {
+        max-height: 100px;
+    }
+}
