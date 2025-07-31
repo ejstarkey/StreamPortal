@@ -1,18 +1,18 @@
 /* System Logs Styles */
-.logs-header {
+.logs-page .logs-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
 }
 
-.logs-tabs {
+.logs-page .logs-tabs {
     display: flex;
     border-bottom: 2px solid #333;
     margin-bottom: 20px;
 }
 
-.log-tab {
+.logs-page .log-tab {
     padding: 10px 20px;
     background: #2a2a2a;
     color: #888;
@@ -24,19 +24,19 @@
     text-decoration: none;
 }
 
-.log-tab:hover {
+.logs-page .log-tab:hover {
     background: #333;
     color: #fff;
     text-decoration: none;
 }
 
-.log-tab.active {
+.logs-page .log-tab.active {
     background: #1a1a1a;
     color: #00ff00;
     border-top: 2px solid #00ff00;
 }
 
-.tab-badge {
+.logs-page .tab-badge {
     background: #dc3545;
     color: white;
     padding: 2px 6px;
@@ -46,11 +46,11 @@
     display: inline-block;
 }
 
-.log-controls {
+.logs-page .log-controls {
     margin-bottom: 10px;
 }
 
-.log-container {
+.logs-page .log-container {
     background: #1a1a1a;
     color: #00ff00;
     font-family: 'Courier New', monospace;
@@ -64,15 +64,15 @@
     border: 1px solid #333;
 }
 
-.tab-content {
+.logs-page .tab-content {
     display: none;
 }
 
-.tab-content.active {
+.logs-page .tab-content.active {
     display: block;
 }
 
-.btn-secondary {
+.logs-page .btn-secondary {
     background: #333;
     color: #fff;
     border: 1px solid #555;
@@ -81,11 +81,11 @@
     cursor: pointer;
 }
 
-.btn-secondary:hover {
+.logs-page .btn-secondary:hover {
     background: #444;
 }
 
-.btn-danger {
+.logs-page .btn-danger {
     background: #dc3545;
     color: #fff;
     border: 1px solid #dc3545;
@@ -93,11 +93,11 @@
     cursor: pointer;
 }
 
-.btn-danger:hover {
+.logs-page .btn-danger:hover {
     background: #c82333;
 }
 
-.btn-warning {
+.logs-page .btn-warning {
     background: #ffc107;
     color: #000;
     border: 1px solid #ffc107;
@@ -106,7 +106,7 @@
     display: inline-block;
 }
 
-.btn-primary {
+.logs-page .btn-primary {
     background: #007bff;
     color: #fff;
     border: 1px solid #007bff;
@@ -114,38 +114,17 @@
     cursor: pointer;
 }
 
-.container-fluid {
+.logs-page .container-fluid {
     position: relative;
     z-index: 1;
 }
 
-.logs-tabs {
+.logs-page .logs-tabs {
     position: relative;
     z-index: 10;
 }
 
-.tab-content {
+.logs-page .tab-content {
     position: relative;
     z-index: 5;
-}
-
-.tab-content {
-  position: relative;
-  z-index: 1;
-  pointer-events: auto;
-}
-
-.log-container {
-  z-index: 1;
-  pointer-events: auto;
-}
-
-#menu-dropdown {
-  position: absolute;
-  z-index: 999999;
-}
-
-header, .menu-container, #menu-dropdown {
-  position: relative;
-  z-index: 1000000 !important;
 }

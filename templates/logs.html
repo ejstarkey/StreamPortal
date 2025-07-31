@@ -2,136 +2,138 @@
 
 {% block head %}
 {{ super() }}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/logs.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/logs.css') }}?v=2">
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
-    <div class="logs-header">
-        <h1>System Logs</h1>
-        <div>
-            <button class="btn-primary" onclick="location.reload()">Refresh</button>
-            <a href="/debug_youtube_creation" class="btn-warning" target="_blank">Test YouTube Creation</a>
+<div class="logs-page">
+    <div class="container-fluid mt-4">
+        <div class="logs-header">
+            <h1>System Logs</h1>
+            <div>
+                <button class="btn-primary" onclick="location.reload()">Refresh</button>
+                <a href="/debug_youtube_creation" class="btn-warning" target="_blank">Test YouTube Creation</a>
+            </div>
         </div>
-    </div>
-    
-    <div class="logs-tabs">
-        <a href="#" class="log-tab active" data-tab="all">
-            All Logs <span class="tab-badge">{{ logs.all|length }}</span>
-        </a>
-        <a href="#" class="log-tab" data-tab="youtube">
-            YouTube <span class="tab-badge">{{ logs.youtube|length }}</span>
-        </a>
-        <a href="#" class="log-tab" data-tab="obs">
-            OBS <span class="tab-badge">{{ logs.obs|length }}</span>
-        </a>
-        <a href="#" class="log-tab" data-tab="streaming">
-            Streaming <span class="tab-badge">{{ logs.streaming|length }}</span>
-        </a>
-        <a href="#" class="log-tab" data-tab="overlays">
-            Overlays <span class="tab-badge">{{ logs.overlays|length }}</span>
-        </a>
-        <a href="#" class="log-tab" data-tab="audio">
-            Audio <span class="tab-badge">{{ logs.audio|length }}</span>
-        </a>
-        <a href="#" class="log-tab" data-tab="network">
-            Network <span class="tab-badge">{{ logs.network|length }}</span>
-        </a>
-        <a href="#" class="log-tab" data-tab="ads">
-            Ads <span class="tab-badge">{{ logs.ads|length }}</span>
-        </a>
-        <a href="#" class="log-tab" data-tab="system">
-            Errors <span class="tab-badge">{{ logs.system|length }}</span>
-        </a>
-    </div>
-    
-    <!-- All Logs -->
-    <div class="tab-content active" id="all-content">
-        <div class="log-controls">
-            <button class="btn-secondary" onclick="scrollToBottom('all')">Jump to Bottom</button>
-            <button class="btn-secondary" onclick="downloadLog('all')">Download</button>
+        
+        <div class="logs-tabs">
+            <a href="#" class="log-tab active" data-tab="all">
+                All Logs <span class="tab-badge">{{ logs.all|length }}</span>
+            </a>
+            <a href="#" class="log-tab" data-tab="youtube">
+                YouTube <span class="tab-badge">{{ logs.youtube|length }}</span>
+            </a>
+            <a href="#" class="log-tab" data-tab="obs">
+                OBS <span class="tab-badge">{{ logs.obs|length }}</span>
+            </a>
+            <a href="#" class="log-tab" data-tab="streaming">
+                Streaming <span class="tab-badge">{{ logs.streaming|length }}</span>
+            </a>
+            <a href="#" class="log-tab" data-tab="overlays">
+                Overlays <span class="tab-badge">{{ logs.overlays|length }}</span>
+            </a>
+            <a href="#" class="log-tab" data-tab="audio">
+                Audio <span class="tab-badge">{{ logs.audio|length }}</span>
+            </a>
+            <a href="#" class="log-tab" data-tab="network">
+                Network <span class="tab-badge">{{ logs.network|length }}</span>
+            </a>
+            <a href="#" class="log-tab" data-tab="ads">
+                Ads <span class="tab-badge">{{ logs.ads|length }}</span>
+            </a>
+            <a href="#" class="log-tab" data-tab="system">
+                Errors <span class="tab-badge">{{ logs.system|length }}</span>
+            </a>
         </div>
-        <div class="log-container" id="all-log">{% for line in logs.all %}{{ line }}
+        
+        <!-- All Logs -->
+        <div class="tab-content active" id="all-content">
+            <div class="log-controls">
+                <button class="btn-secondary" onclick="scrollToBottom('all')">Jump to Bottom</button>
+                <button class="btn-secondary" onclick="downloadLog('all')">Download</button>
+            </div>
+            <div class="log-container" id="all-log">{% for line in logs.all %}{{ line }}
 {% endfor %}</div>
-    </div>
-    
-    <!-- YouTube Logs -->
-    <div class="tab-content" id="youtube-content">
-        <div class="log-controls">
-            <button class="btn-secondary" onclick="scrollToBottom('youtube')">Jump to Bottom</button>
-            <button class="btn-danger" onclick="clearLog('youtube')">Clear Log</button>
         </div>
-        <div class="log-container" id="youtube-log">{% for line in logs.youtube %}{{ line }}
+        
+        <!-- YouTube Logs -->
+        <div class="tab-content" id="youtube-content">
+            <div class="log-controls">
+                <button class="btn-secondary" onclick="scrollToBottom('youtube')">Jump to Bottom</button>
+                <button class="btn-danger" onclick="clearLog('youtube')">Clear Log</button>
+            </div>
+            <div class="log-container" id="youtube-log">{% for line in logs.youtube %}{{ line }}
 {% endfor %}</div>
-    </div>
-    
-    <!-- OBS Logs -->
-    <div class="tab-content" id="obs-content">
-        <div class="log-controls">
-            <button class="btn-secondary" onclick="scrollToBottom('obs')">Jump to Bottom</button>
         </div>
-        <div class="log-container" id="obs-log">{% for line in logs.obs %}{{ line }}
+        
+        <!-- OBS Logs -->
+        <div class="tab-content" id="obs-content">
+            <div class="log-controls">
+                <button class="btn-secondary" onclick="scrollToBottom('obs')">Jump to Bottom</button>
+            </div>
+            <div class="log-container" id="obs-log">{% for line in logs.obs %}{{ line }}
 {% endfor %}</div>
-    </div>
-    
-    <!-- Streaming Logs -->
-    <div class="tab-content" id="streaming-content">
-        <div class="log-controls">
-            <button class="btn-secondary" onclick="scrollToBottom('streaming')">Jump to Bottom</button>
         </div>
-        <div class="log-container" id="streaming-log">{% for line in logs.streaming %}{{ line }}
+        
+        <!-- Streaming Logs -->
+        <div class="tab-content" id="streaming-content">
+            <div class="log-controls">
+                <button class="btn-secondary" onclick="scrollToBottom('streaming')">Jump to Bottom</button>
+            </div>
+            <div class="log-container" id="streaming-log">{% for line in logs.streaming %}{{ line }}
 {% endfor %}</div>
-    </div>
-    
-    <!-- Overlays Logs -->
-    <div class="tab-content" id="overlays-content">
-        <div class="log-controls">
-            <button class="btn-secondary" onclick="scrollToBottom('overlays')">Jump to Bottom</button>
         </div>
-        <div class="log-container" id="overlays-log">{% for line in logs.overlays %}{{ line }}
+        
+        <!-- Overlays Logs -->
+        <div class="tab-content" id="overlays-content">
+            <div class="log-controls">
+                <button class="btn-secondary" onclick="scrollToBottom('overlays')">Jump to Bottom</button>
+            </div>
+            <div class="log-container" id="overlays-log">{% for line in logs.overlays %}{{ line }}
 {% endfor %}</div>
-    </div>
-    
-    <!-- Audio Logs -->
-    <div class="tab-content" id="audio-content">
-        <div class="log-controls">
-            <button class="btn-secondary" onclick="scrollToBottom('audio')">Jump to Bottom</button>
         </div>
-        <div class="log-container" id="audio-log">{% for line in logs.audio %}{{ line }}
+        
+        <!-- Audio Logs -->
+        <div class="tab-content" id="audio-content">
+            <div class="log-controls">
+                <button class="btn-secondary" onclick="scrollToBottom('audio')">Jump to Bottom</button>
+            </div>
+            <div class="log-container" id="audio-log">{% for line in logs.audio %}{{ line }}
 {% endfor %}</div>
-    </div>
-    
-    <!-- Network Logs -->
-    <div class="tab-content" id="network-content">
-        <div class="log-controls">
-            <button class="btn-secondary" onclick="scrollToBottom('network')">Jump to Bottom</button>
         </div>
-        <div class="log-container" id="network-log">{% for line in logs.network %}{{ line }}
+        
+        <!-- Network Logs -->
+        <div class="tab-content" id="network-content">
+            <div class="log-controls">
+                <button class="btn-secondary" onclick="scrollToBottom('network')">Jump to Bottom</button>
+            </div>
+            <div class="log-container" id="network-log">{% for line in logs.network %}{{ line }}
 {% endfor %}</div>
-    </div>
-    
-    <!-- Ads Logs -->
-    <div class="tab-content" id="ads-content">
-        <div class="log-controls">
-            <button class="btn-secondary" onclick="scrollToBottom('ads')">Jump to Bottom</button>
-            <button class="btn-danger" onclick="clearLog('ads')">Clear Log</button>
         </div>
-        <div class="log-container" id="ads-log">{% for line in logs.ads %}{{ line }}
+        
+        <!-- Ads Logs -->
+        <div class="tab-content" id="ads-content">
+            <div class="log-controls">
+                <button class="btn-secondary" onclick="scrollToBottom('ads')">Jump to Bottom</button>
+                <button class="btn-danger" onclick="clearLog('ads')">Clear Log</button>
+            </div>
+            <div class="log-container" id="ads-log">{% for line in logs.ads %}{{ line }}
 {% endfor %}</div>
-    </div>
-    
-    <!-- System/Error Logs -->
-    <div class="tab-content" id="system-content">
-        <div class="log-controls">
-            <button class="btn-secondary" onclick="scrollToBottom('system')">Jump to Bottom</button>
         </div>
-        <div class="log-container" id="system-log">{% for line in logs.system %}{{ line }}
+        
+        <!-- System/Error Logs -->
+        <div class="tab-content" id="system-content">
+            <div class="log-controls">
+                <button class="btn-secondary" onclick="scrollToBottom('system')">Jump to Bottom</button>
+            </div>
+            <div class="log-container" id="system-log">{% for line in logs.system %}{{ line }}
 {% endfor %}</div>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
-<script src="{{ url_for('static', filename='js/logs.js') }}"></script>
+<script src="{{ url_for('static', filename='js/logs.js') }}?v=2"></script>
 {% endblock %}
