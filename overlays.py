@@ -49,6 +49,15 @@ def get_overlay_html(pair_id, side):
     # === Case 1: Livescores format ===
     livescore_block = soup.find("div", id="players-wrap")
     if livescore_block:
+        button_wrap = soup.find("div", id="button-wrap")
+        if button_wrap:
+            game_span = button_wrap.find("span")
+            if game_span and "Game" in game_span.get_text():
+                header = livescore_block.find("div", id="header")
+                if header:
+                    h1 = header.find("h1")
+                    if h1 and not h1.get_text().strip():
+                        h1.string = game_span.get_text().strip()
         return livescore_block.prettify()
 
     # === Case 2: DuoHD with iframe ===

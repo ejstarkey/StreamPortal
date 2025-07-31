@@ -576,6 +576,108 @@ def test_stream_creation():
         print("[YouTube] ❌ Test stream creation failed!")
         return False
 
+# Add this complete function to youtube_api.py
+
+def start_enabled_youtube_broadcasts():
+    """Start YouTube broadcasts for all ENABLED streams (AutoCreate or Manual)"""
+    import time
+    logger.info("Starting YouTube broadcasts for enabled streams...")
+    
+    try:
+        youtube = get_authenticated_service()
+        started_count = 0
+        failed_count = 0
+        already_live = 0
+        
+        # Load config to get ONLY enabled streams
+        with open('/home/cornerpins/portal/streams_config.json', 'r') as f:
+            config = json.load(f)
+        
+        # Process ONLY enabled pairs
+        enabled_pairs = [p for p in config.get('lane_pairs', []) if p.get('enabled')]
+        logger.info(f"Found {len(enabled_pairs)} enabled lane pairs")
+        
+        for pair in enabled_pairs:
+            pair_name = pair['name']
+            youtube_id = pair.get('youtube_live_id', '').strip()
+            
+            # Skip if no YouTube ID (regardless of AutoCreate status)
+            if not youtube_id:
+                logger.warning(f"{pair_name}: No YouTube ID configured")
+                continue
+            
+            logger.info(f"{pair_name}: Checking broadcast {youtube_id} (AutoCreate={pair.get('autocreate', False)})")
+            
+            try:
+                # Get broadcast status
+                broadcast = youtube.liveBroadcasts().list(
+                    part="id,status,snippet",
+                    id=youtube_id
+                ).execute()
+                
+                if not broadcast.get('items'):
+                    logger.error(f"{pair_name}: Broadcast {youtube_id} not found on YouTube")
+                    failed_count += 1
+                    continue
+                
+                item = broadcast['items'][0]
+                status = item['status']['lifeCycleStatus']
+                title = item['snippet']['title']
+                
+                logger.info(f"{pair_name}: '{title}' is {status}")
+                
+                if status == 'ready':
+                    # Transition to live
+                    logger.info(f"{pair_name}: Transitioning to live...")
+                    youtube.liveBroadcasts().transition(
+                        broadcastId=youtube_id,
+                        id=youtube_id,
+                        part="id,status",
+                        broadcastStatus="live"
+                    ).execute()
+                    
+                    started_count += 1
+                    logger.info(f"✅ {pair_name}: Successfully started streaming")
+                    
+                    # Small delay to avoid rate limiting
+                    time.sleep(2)
+                    
+                elif status == 'live':
+                    logger.info(f"✅ {pair_name}: Already live")
+                    already_live += 1
+                    
+                elif status == 'complete':
+                    logger.warning(f"{pair_name}: Broadcast already completed")
+                    failed_count += 1
+                    
+                else:
+                    logger.warning(f"{pair_name}: Cannot start - status is {status}")
+                    logger.warning(f"   Stream might not be active yet. Wait 10-30 seconds after OBS starts.")
+                    failed_count += 1
+                    
+            except Exception as e:
+                logger.error(f"{pair_name}: Failed to start broadcast: {e}")
+                if "not receiving video" in str(e):
+                    logger.error(f"   OBS might not be streaming to this broadcast yet")
+                failed_count += 1
+        
+        logger.info(f"YouTube Broadcast Summary:")
+        logger.info(f"  Started: {started_count}")
+        logger.info(f"  Already Live: {already_live}")
+        logger.info(f"  Failed: {failed_count}")
+        logger.info(f"  Total Enabled: {len(enabled_pairs)}")
+        
+        return {
+            "started": started_count,
+            "already_live": already_live,
+            "failed": failed_count,
+            "total": len(enabled_pairs)
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to start YouTube broadcasts: {e}")
+        return {"error": str(e), "started": 0, "failed": 0}
+
 if __name__ == "__main__":
     # Run tests when called directly
     test_stream_creation()

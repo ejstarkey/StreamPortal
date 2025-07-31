@@ -359,6 +359,59 @@ def save_streaming_status(status):
     except Exception as e:
         logger.error(f"Failed to save streaming status: {e}")
 
+def stop_all_youtube_broadcasts():
+    """Stop all active YouTube broadcasts when OBS stops streaming"""
+    try:
+        from youtube_api import get_authenticated_service
+        youtube = get_authenticated_service()
+        
+        stopped_count = 0
+        failed_count = 0
+        
+        # Load config to get enabled streams
+        cfg = load_config()
+        enabled_pairs = [p for p in cfg.get('lane_pairs', []) if p.get('enabled')]
+        
+        for pair in enabled_pairs:
+            youtube_id = pair.get('youtube_live_id', '').strip()
+            if not youtube_id:
+                continue
+                
+            try:
+                # Check current status
+                broadcast = youtube.liveBroadcasts().list(
+                    part="status",
+                    id=youtube_id
+                ).execute()
+                
+                if broadcast.get('items'):
+                    status = broadcast['items'][0]['status']['lifeCycleStatus']
+                    
+                    if status == 'live':
+                        # Transition to complete
+                        youtube.liveBroadcasts().transition(
+                            broadcastId=youtube_id,
+                            id=youtube_id,
+                            part="status",
+                            broadcastStatus="complete"
+                        ).execute()
+                        
+                        stopped_count += 1
+                        logger.info(f"✅ Stopped YouTube broadcast for {pair['name']}")
+                    else:
+                        logger.info(f"{pair['name']} broadcast already {status}")
+                        
+            except Exception as e:
+                logger.error(f"Failed to stop broadcast for {pair['name']}: {e}")
+                failed_count += 1
+                
+        logger.info(f"YouTube broadcasts stopped: {stopped_count}, failed: {failed_count}")
+        return {"stopped": stopped_count, "failed": failed_count}
+        
+    except Exception as e:
+        logger.error(f"Failed to stop YouTube broadcasts: {e}")
+        return {"error": str(e)}
+
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -438,96 +491,97 @@ def dashboard():
         enabled_pairs = []
         
         for i, pair in enumerate(lane_pairs):
-            prefix = f"lane{i}"
-            pair["enabled"] = request.form.get(f"{prefix}_enabled") == "on"
-            
-            if pair["enabled"]:
-                any_enabled = True
-                
-                pair["src_type"] = request.form.get(f"{prefix}_src_type", "rtsp")
-                pair["camera_rtsp"] = request.form.get(f"{prefix}_camera_rtsp", "").strip()
-                pair["local_src"] = request.form.get(f"{prefix}_local_src", "").strip()
-                pair["scoring_type"] = request.form.get(f"{prefix}_scoring_type", "").strip()
-                
-                if pair["scoring_type"] == "livescores":
-                    pair["state"] = request.form.get(f"{prefix}_state", "").strip()
-                    pair["centre"] = request.form.get(f"{prefix}_centre", "").strip()
-                else:
-                    pair["state"] = ""
-                    pair["centre"] = ""
-
-                pair["odd_lane_scoring_source"] = request.form.get(f"{prefix}_odd_lane_src", "").strip()
-                pair["even_lane_scoring_source"] = request.form.get(f"{prefix}_even_lane_src", "").strip()
-                
-                pair["autocreate"] = request.form.get(f"{prefix}_autocreate") == "on"
-                
-                if pair["autocreate"]:
-                    logger.info(f"[AutoCreate] Creating stream for {pair['name']}")
-                    try:
-                        from youtube_api import create_youtube_stream
-                        stream_result = create_youtube_stream(event_name, pair["name"])
-                        logger.info(f"[AutoCreate] Result from YouTube API: {stream_result}")
-                        if stream_result:
-                            pair["stream_key"] = stream_result.get("stream_key", "")
-                            pair["youtube_live_id"] = stream_result.get("youtube_live_id", "")
-                            logger.info(f"[AutoCreate] SUCCESS: {pair['name']} got {pair['youtube_live_id']}")
+                    prefix = f"lane{i}"
+                    pair["enabled"] = request.form.get(f"{prefix}_enabled") == "on"
+                    
+                    if pair["enabled"]:
+                        any_enabled = True
+                        
+                        pair["src_type"] = request.form.get(f"{prefix}_src_type", "rtsp")
+                        pair["camera_rtsp"] = request.form.get(f"{prefix}_camera_rtsp", "").strip()
+                        pair["local_src"] = request.form.get(f"{prefix}_local_src", "").strip()
+                        pair["scoring_type"] = request.form.get(f"{prefix}_scoring_type", "").strip()
+                        
+                        if pair["scoring_type"] == "livescores":
+                            pair["state"] = request.form.get(f"{prefix}_state", "").strip()
+                            pair["centre"] = request.form.get(f"{prefix}_centre", "").strip()
                         else:
-                            logger.error(f"[AutoCreate] FAILED: create_youtube_stream returned None for {pair['name']}")
-                    except Exception as e:
-                        logger.error(f"[AutoCreate] EXCEPTION: {e}")
-                        import traceback
-                        logger.error(traceback.format_exc())
-                else:
-                    form_stream_key = request.form.get(f"{prefix}_stream_key", "").strip()
-                    form_youtube_id = request.form.get(f"{prefix}_youtube_live_id", "").strip()
-                    
-                    current_stream_key = pair.get("stream_key", "")
-                    current_youtube_id = pair.get("youtube_live_id", "")
-                    
-                    if form_stream_key != current_stream_key:
-                        pair["stream_key"] = form_stream_key
-                        logger.info(f"[Manual] Updated stream_key for {pair['name']}: {form_stream_key}")
-                    
-                    if form_youtube_id != current_youtube_id:
-                        pair["youtube_live_id"] = form_youtube_id
-                        logger.info(f"[Manual] Updated youtube_live_id for {pair['name']}: {form_youtube_id}")
-                    
-                    if form_stream_key == current_stream_key and form_youtube_id == current_youtube_id:
-                        logger.info(f"[Manual] Preserving existing values for {pair['name']}")
-                
-                try:
-                    delay_val = int(request.form.get(f"{prefix}_video_delay_ms", 0))
-                    pair["video_delay_ms"] = max(0, min(delay_val, 60000))
-                except ValueError:
-                    pair["video_delay_ms"] = 0
+                            pair["state"] = ""
+                            pair["centre"] = ""
 
-                pair["pin_cam"]["enabled"] = request.form.get(f"{prefix}_enable_pin_cam") == "on"
-                pair["pin_cam"]["type"] = request.form.get(f"{prefix}_pin_cam_type", "rtsp")
-                pair["pin_cam"]["rtsp"] = request.form.get(f"{prefix}_pin_rtsp", "").strip()
-                pair["pin_cam"]["local"] = request.form.get(f"{prefix}_pin_local", "").strip() if pair["pin_cam"]["enabled"] else ""
+                        pair["odd_lane_scoring_source"] = request.form.get(f"{prefix}_odd_lane_src", "").strip()
+                        pair["even_lane_scoring_source"] = request.form.get(f"{prefix}_even_lane_src", "").strip()
+                        
+                        pair["autocreate"] = request.form.get(f"{prefix}_autocreate") == "on"
+                        
+                        if pair["autocreate"]:
+                            logger.info(f"[AutoCreate] Creating stream for ENABLED pair {pair['name']}")
+                            try:
+                                from youtube_api import create_youtube_stream
+                                stream_result = create_youtube_stream(event_name, pair["name"])
+                                logger.info(f"[AutoCreate] Result from YouTube API: {stream_result}")
+                                if stream_result:
+                                    pair["stream_key"] = stream_result.get("stream_key", "")
+                                    pair["youtube_live_id"] = stream_result.get("youtube_live_id", "")
+                                    logger.info(f"[AutoCreate] SUCCESS: {pair['name']} got {pair['youtube_live_id']}")
+                                else:
+                                    logger.error(f"[AutoCreate] FAILED: create_youtube_stream returned None for {pair['name']}")
+                            except Exception as e:
+                                logger.error(f"[AutoCreate] EXCEPTION: {e}")
+                                import traceback
+                                logger.error(traceback.format_exc())
+                        else:
+                            form_stream_key = request.form.get(f"{prefix}_stream_key", "").strip()
+                            form_youtube_id = request.form.get(f"{prefix}_youtube_live_id", "").strip()
+                            
+                            current_stream_key = pair.get("stream_key", "")
+                            current_youtube_id = pair.get("youtube_live_id", "")
+                            
+                            if form_stream_key != current_stream_key:
+                                pair["stream_key"] = form_stream_key
+                                logger.info(f"[Manual] Updated stream_key for {pair['name']}: {form_stream_key}")
+                            
+                            if form_youtube_id != current_youtube_id:
+                                pair["youtube_live_id"] = form_youtube_id
+                                logger.info(f"[Manual] Updated youtube_live_id for {pair['name']}: {form_youtube_id}")
+                            
+                            if form_stream_key == current_stream_key and form_youtube_id == current_youtube_id:
+                                logger.info(f"[Manual] Preserving existing values for {pair['name']}")
+                        
+                        try:
+                            delay_val = int(request.form.get(f"{prefix}_video_delay_ms", 0))
+                            pair["video_delay_ms"] = max(0, min(delay_val, 60000))
+                        except ValueError:
+                            pair["video_delay_ms"] = 0
 
-                pair["player_cam"]["enabled"] = request.form.get(f"{prefix}_enable_player_cam") == "on"
-                pair["player_cam"]["type"] = request.form.get(f"{prefix}_player_cam_type", "rtsp")
-                pair["player_cam"]["rtsp"] = request.form.get(f"{prefix}_player_rtsp", "").strip()
-                pair["player_cam"]["local"] = request.form.get(f"{prefix}_player_local", "").strip() if pair["player_cam"]["enabled"] else ""
+                        pair["pin_cam"]["enabled"] = request.form.get(f"{prefix}_enable_pin_cam") == "on"
+                        pair["pin_cam"]["type"] = request.form.get(f"{prefix}_pin_cam_type", "rtsp")
+                        pair["pin_cam"]["rtsp"] = request.form.get(f"{prefix}_pin_rtsp", "").strip()
+                        pair["pin_cam"]["local"] = request.form.get(f"{prefix}_pin_local", "").strip() if pair["pin_cam"]["enabled"] else ""
 
-                audio_streams = []
-                for audio_idx in range(10):
-                    key = f"{prefix}_audio_streams_{audio_idx}"
-                    name_key = f"{prefix}_audio_names_{audio_idx}"
-                    label = request.form.get(key, "").strip()
-                    friendly_name = request.form.get(name_key, "").strip()
-                    if label:
-                        pulse_name = device_mappings.get(label, label)
-                        audio_streams.append({"label": label, "pulse_name": pulse_name, "friendly_name": friendly_name})
-                pair["audio_streams"] = audio_streams
-                
-                enabled_pairs.append(pair)
-            else:
-                pair["local_src"] = ""
-                pair["pin_cam"]["local"] = ""
-                pair["player_cam"]["local"] = ""
-                pair["audio_streams"] = []
+                        pair["player_cam"]["enabled"] = request.form.get(f"{prefix}_enable_player_cam") == "on"
+                        pair["player_cam"]["type"] = request.form.get(f"{prefix}_player_cam_type", "rtsp")
+                        pair["player_cam"]["rtsp"] = request.form.get(f"{prefix}_player_rtsp", "").strip()
+                        pair["player_cam"]["local"] = request.form.get(f"{prefix}_player_local", "").strip() if pair["player_cam"]["enabled"] else ""
+
+                        audio_streams = []
+                        for audio_idx in range(10):
+                            key = f"{prefix}_audio_streams_{audio_idx}"
+                            name_key = f"{prefix}_audio_names_{audio_idx}"
+                            label = request.form.get(key, "").strip()
+                            friendly_name = request.form.get(name_key, "").strip()
+                            if label:
+                                pulse_name = device_mappings.get(label, label)
+                                audio_streams.append({"label": label, "pulse_name": pulse_name, "friendly_name": friendly_name})
+                        pair["audio_streams"] = audio_streams
+                        
+                        enabled_pairs.append(pair)
+                    else:
+                        pair["autocreate"] = False
+                        pair["local_src"] = ""
+                        pair["pin_cam"]["local"] = ""
+                        pair["player_cam"]["local"] = ""
+                        pair["audio_streams"] = []
 
         for pair in lane_pairs:
             if pair.get("enabled") and pair.get("scoring_type") == "livescores":
@@ -1672,26 +1726,24 @@ def toggle_stream():
                 logger.info(f"Analytics tracking response: {track_response.status_code}")
             except Exception as e:
                 logger.warning(f"Failed to track analytics start: {e}")
+
             # ENHANCED: First ensure Multi-RTMP is configured
             try:
                 logger.info("Ensuring Multi-RTMP is configured before starting")
                 
-                # Check if outputs exist, if not configure them
+                # Check if outputs exist
                 resp = ws.call(obs_requests.CallVendorRequest(
                     vendorName="obs-multi-rtmp",
                     requestType="GetOutputs",
                     requestData={}
                 ))
+                
                 existing_outputs = resp.getRequestResponse().get("outputs", [])
-                logger.warning(f"📡 OBS currently has {len(existing_outputs)} outputs")
                 logger.info(f"Found {len(existing_outputs)} existing Multi-RTMP outputs")
                 
                 # If no outputs or mismatched count, reconfigure
                 if len(existing_outputs) != len(enabled_pairs):
                     logger.info("Multi-RTMP outputs don't match enabled pairs, reconfiguring...")
-                    
-                    # Configure Multi-RTMP via WebSocket API
-                    rtmp_base_url = cfg.get("youtube_rtmp_base", "rtmp://a.rtmp.youtube.com/live2")
                     
                     # Clear existing outputs
                     for output in existing_outputs:
@@ -1704,7 +1756,10 @@ def toggle_stream():
                         except:
                             pass
                     
-                    # Add new outputs
+                    # Add outputs for each enabled pair
+                    rtmp_base_url = cfg.get("youtube_rtmp_base", "rtmp://a.rtmp.youtube.com/live2")
+                    configured = 0
+                    
                     for pair in enabled_pairs:
                         stream_key = ""
                         
@@ -1736,22 +1791,30 @@ def toggle_stream():
                                     requestData={"name": output_name}
                                 ))
                                 
+                                configured += 1
                                 logger.info(f"Configured Multi-RTMP output: {output_name}")
                             except Exception as e:
                                 logger.warning(f"Failed to configure {output_name}: {e}")
-                
-                # Save configuration
-                try:
-                    ws.call(obs_requests.CallVendorRequest(
-                        vendorName="obs-multi-rtmp",
-                        requestType="SaveConfig",
-                        requestData={}
-                    ))
-                except Exception as e:
-                    logger.warning(f"SaveConfig failed: {e}")
+                        else:
+                            logger.warning(f"No stream key for {pair['name']}")
+                    
+                    logger.info(f"Configured {configured} Multi-RTMP outputs")
+                    
+                    # Save configuration
+                    try:
+                        ws.call(obs_requests.CallVendorRequest(
+                            vendorName="obs-multi-rtmp",
+                            requestType="SaveConfig",
+                            requestData={}
+                        ))
+                    except Exception as e:
+                        logger.warning(f"SaveConfig failed: {e}")
+                else:
+                    logger.info("Multi-RTMP outputs already configured correctly")
                     
             except Exception as e:
-                logger.warning(f"Multi-RTMP configuration failed: {e}")
+                logger.warning(f"Multi-RTMP configuration check failed: {e}")
+                # Continue anyway - maybe it's already configured
 
             # Start all Multi-RTMP streams
             try:
@@ -1765,6 +1828,37 @@ def toggle_stream():
                 ws.disconnect()
                 save_streaming_status(True)
                 logger.info("Multi-RTMP streaming started successfully")
+                # Wait for streams to reach YouTube
+                logger.info("Waiting 15 seconds for streams to reach YouTube...")
+                time.sleep(15)
+                
+                # Start YouTube broadcasts for enabled streams
+                try:
+                    from youtube_api import start_enabled_youtube_broadcasts
+                    result = start_enabled_youtube_broadcasts()
+                    
+                    if result.get("error"):
+                        message = f"Streaming started but YouTube error: {result['error']}"
+                    else:
+                        started = result.get("started", 0)
+                        already = result.get("already_live", 0)
+                        failed = result.get("failed", 0)
+                        
+                        if started > 0:
+                            message = f"Streaming started! {started} YouTube broadcasts went live."
+                        elif already > 0:
+                            message = f"Streaming started! {already} broadcasts already live."
+                        else:
+                            message = "Streaming started but YouTube broadcasts need manual 'Go Live' in YouTube Studio."
+                            
+                        if failed > 0:
+                            message += f" ({failed} broadcasts failed - check logs)"
+                            
+                except Exception as e:
+                    logger.error(f"YouTube broadcast start failed: {e}")
+                    message = "Streaming started but YouTube auto-start failed. Use YouTube Studio."
+                
+                return jsonify({"message": message, "streaming": True})                
                 if failed_pairs:
                     logger.warning(f"‼️ FAILED PAIRS: {failed_pairs}")
                     print(f"‼️ FAILED PAIRS: {failed_pairs}")
@@ -1795,7 +1889,21 @@ def toggle_stream():
                 ws.disconnect()
                 save_streaming_status(False)
                 logger.info("Multi-RTMP streaming stopped successfully")
-                return jsonify({"message": "Streaming stopped.", "streaming": False})
+                
+                # Stop YouTube broadcasts
+                logger.info("Stopping YouTube broadcasts...")
+                youtube_result = stop_all_youtube_broadcasts()
+                
+                if youtube_result.get("error"):
+                    message = f"Streaming stopped but YouTube error: {youtube_result['error']}"
+                else:
+                    stopped = youtube_result.get("stopped", 0)
+                    failed = youtube_result.get("failed", 0)
+                    message = f"Streaming stopped. {stopped} YouTube broadcasts ended."
+                    if failed > 0:
+                        message += f" ({failed} failed to stop)"
+                
+                return jsonify({"message": message, "streaming": False})
             except Exception as e:
                 ws.disconnect()
                 logger.error(f"Failed to stop Multi-RTMP streaming: {e}")
