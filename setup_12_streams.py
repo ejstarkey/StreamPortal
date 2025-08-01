@@ -545,21 +545,14 @@ def configure_multi_rtmp_outputs(ws, enabled_pairs, config):
             pair_name = pair["name"]
             stream_key = ""
             
-            # ✅ HANDLES BOTH AutoCreate AND Manual modes
-            if pair.get("autocreate"):
-                # AutoCreate mode
-                if pair.get("youtube_live_id") and pair.get("stream_key"):
-                    stream_key = pair["stream_key"]
-                    logger.info(f"🤖 {pair_name}: AutoCreate key")
-            else:
-                # Manual mode
-                stream_key = pair.get("stream_key", "").strip()
-                if stream_key:
-                    logger.info(f"✋ {pair_name}: Manual key")
+            stream_key = pair.get("stream_key", "").strip()  # ALWAYS use stream_key field
 
+            # SIMPLIFIED: Just check if we have a stream key
             if not stream_key:
                 logger.warning(f"❌ {pair_name}: No stream key - skipping")
                 continue
+
+            logger.info(f"📺 {pair_name}: Using stream key {stream_key[:8]}...")
 
             # Add and configure output
             output_name = f"Pair {pair_name}"

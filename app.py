@@ -28,7 +28,7 @@ import psutil
 import socket
 import platform
 import shutil
-from youtube_api import create_youtube_stream
+from youtube_api import create_youtube_broadcast_only
 from datetime import datetime
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, A4
@@ -359,59 +359,6 @@ def save_streaming_status(status):
     except Exception as e:
         logger.error(f"Failed to save streaming status: {e}")
 
-def stop_all_youtube_broadcasts():
-    """Stop all active YouTube broadcasts when OBS stops streaming"""
-    try:
-        from youtube_api import get_authenticated_service
-        youtube = get_authenticated_service()
-        
-        stopped_count = 0
-        failed_count = 0
-        
-        # Load config to get enabled streams
-        cfg = load_config()
-        enabled_pairs = [p for p in cfg.get('lane_pairs', []) if p.get('enabled')]
-        
-        for pair in enabled_pairs:
-            youtube_id = pair.get('youtube_live_id', '').strip()
-            if not youtube_id:
-                continue
-                
-            try:
-                # Check current status
-                broadcast = youtube.liveBroadcasts().list(
-                    part="status",
-                    id=youtube_id
-                ).execute()
-                
-                if broadcast.get('items'):
-                    status = broadcast['items'][0]['status']['lifeCycleStatus']
-                    
-                    if status == 'live':
-                        # Transition to complete
-                        youtube.liveBroadcasts().transition(
-                            broadcastId=youtube_id,
-                            id=youtube_id,
-                            part="status",
-                            broadcastStatus="complete"
-                        ).execute()
-                        
-                        stopped_count += 1
-                        logger.info(f"✅ Stopped YouTube broadcast for {pair['name']}")
-                    else:
-                        logger.info(f"{pair['name']} broadcast already {status}")
-                        
-            except Exception as e:
-                logger.error(f"Failed to stop broadcast for {pair['name']}: {e}")
-                failed_count += 1
-                
-        logger.info(f"YouTube broadcasts stopped: {stopped_count}, failed: {failed_count}")
-        return {"stopped": stopped_count, "failed": failed_count}
-        
-    except Exception as e:
-        logger.error(f"Failed to stop YouTube broadcasts: {e}")
-        return {"error": str(e)}
-
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -515,22 +462,36 @@ def dashboard():
                         pair["autocreate"] = request.form.get(f"{prefix}_autocreate") == "on"
                         
                         if pair["autocreate"]:
-                            logger.info(f"[AutoCreate] Creating stream for ENABLED pair {pair['name']}")
-                            try:
-                                from youtube_api import create_youtube_stream
-                                stream_result = create_youtube_stream(event_name, pair["name"])
-                                logger.info(f"[AutoCreate] Result from YouTube API: {stream_result}")
-                                if stream_result:
-                                    pair["stream_key"] = stream_result.get("stream_key", "")
-                                    pair["youtube_live_id"] = stream_result.get("youtube_live_id", "")
-                                    logger.info(f"[AutoCreate] SUCCESS: {pair['name']} got {pair['youtube_live_id']}")
-                                else:
-                                    logger.error(f"[AutoCreate] FAILED: create_youtube_stream returned None for {pair['name']}")
-                            except Exception as e:
-                                logger.error(f"[AutoCreate] EXCEPTION: {e}")
-                                import traceback
-                                logger.error(traceback.format_exc())
+                            # CHANGED: Use the manual stream key for AutoCreate
+                            manual_stream_key = request.form.get(f"{prefix}_stream_key", "").strip()
+                            
+                            if not manual_stream_key:
+                                logger.error(f"[AutoCreate] {pair['name']}: No stream key provided - AutoCreate requires a stream key")
+                                pair["autocreate"] = False  # Disable AutoCreate if no key
+                                failed_pairs.append(f"{pair['name']} (AutoCreate: no stream key)")
+                            else:
+                                logger.info(f"[AutoCreate] Creating broadcast for {pair['name']} using existing key: {manual_stream_key[:8]}...")
+                                try:
+                                    from youtube_api import create_youtube_broadcast_only
+                                    # Create broadcast only, not a new stream
+                                    broadcast_result = create_youtube_broadcast_only(event_name, pair["name"], manual_stream_key)
+                                    
+                                    if broadcast_result:
+                                        # Keep the manual stream key
+                                        pair["stream_key"] = manual_stream_key
+                                        # Set the new YouTube Live ID from the broadcast
+                                        pair["youtube_live_id"] = broadcast_result.get("youtube_live_id", "")
+                                        logger.info(f"[AutoCreate] SUCCESS: {pair['name']} got broadcast {pair['youtube_live_id']}")
+                                    else:
+                                        logger.error(f"[AutoCreate] FAILED: create_youtube_broadcast_only returned None for {pair['name']}")
+                                        pair["autocreate"] = False
+                                except Exception as e:
+                                    logger.error(f"[AutoCreate] EXCEPTION: {e}")
+                                    import traceback
+                                    logger.error(traceback.format_exc())
+                                    pair["autocreate"] = False
                         else:
+                            # Manual mode - keep existing logic
                             form_stream_key = request.form.get(f"{prefix}_stream_key", "").strip()
                             form_youtube_id = request.form.get(f"{prefix}_youtube_live_id", "").strip()
                             
@@ -667,119 +628,76 @@ def dashboard():
             flash(f"Unexpected error: {e}", "danger")
 
         # Configure Multi-RTMP AFTER everything is saved
-        if any_enabled and enabled_pairs:
-            try:
-                ws = obsws(OBS_HOST, OBS_PORT, OBS_PASSWORD)
-                ws.connect()
-                
-                vendor_name = "obs-multi-rtmp"
-                rtmp_base_url = cfg.get("youtube_rtmp_base", "rtmp://a.rtmp.youtube.com/live2")
-                
-                try:
-                    resp = ws.call(obs_requests.CallVendorRequest(
-                        vendorName=vendor_name,
-                        requestType="GetOutputs",
-                        requestData={}
-                    ))
-                    
-                    existing_outputs = resp.getRequestResponse().get("outputs", [])
-                    logger.info(f"🧹 Found {len(existing_outputs)} existing outputs to clear")
-                    
-                    for output in existing_outputs:
+    if any_enabled and enabled_pairs:
+        try:
+            ws = obsws(OBS_HOST, OBS_PORT, OBS_PASSWORD)
+            ws.connect()
+            
+            vendor_name = "obs-multi-rtmp"
+            rtmp_base_url = cfg.get("youtube_rtmp_base", "rtmp://a.rtmp.youtube.com/live2")
+            
+            # Remove all existing outputs
+            for i in range(24):
+                for prefix in ["Pair ", "Lane ", ""]:
+                    names = [
+                        f"{prefix}{i+1}&{i+2}",
+                        f"{prefix}{i*2+1}&{i*2+2}",
+                        f"TEST_{i+1}&{i+2}"
+                    ]
+                    for name in names:
                         try:
-                            output_name = output.get("name", "Unknown")
                             ws.call(obs_requests.CallVendorRequest(
                                 vendorName=vendor_name,
                                 requestType="RemoveOutput",
-                                requestData={"name": output_name}
+                                requestData={"name": name}
                             ))
-                            logger.info(f"  Removed: {output_name}")
-                        except Exception as e:
-                            logger.warning(f"  Failed to remove {output_name}: {e}")
-                except Exception as e:
-                    logger.warning(f"Failed to clear outputs: {e}")
+                        except:
+                            pass
 
-                success_count = 0
-                for pair in enabled_pairs:
-                    pair_name = pair["name"]
-                    stream_key = ""
-                    
-                    if pair.get("autocreate"):
-                        if pair.get("youtube_live_id") and pair.get("stream_key"):
-                            stream_key = pair["stream_key"]
-                            logger.info(f"  🤖 Using AutoCreate key for {pair_name}")
-                    else:
-                        stream_key = pair.get("stream_key", "").strip()
-                        if stream_key:
-                            logger.info(f"  ✋ Using Manual key for {pair_name}")
+            # Add outputs
+            success_count = 0
+            for pair in enabled_pairs:
+                pair_name = pair["name"]
+                stream_key = pair.get("stream_key", "").strip()
+                
+                if not stream_key:
+                    logger.warning(f"No stream key for {pair_name}")
+                    continue
 
-                    if not stream_key:
-                        logger.warning(f"  ⏭️ Skipping {pair_name} - no stream key available")
-                        continue
-
-                    output_name = f"Pair {pair_name}"
-                    
-                    try:
-                        logger.info(f"  📤 Adding output: {output_name}")
-                        ws.call(obs_requests.CallVendorRequest(
-                            vendorName=vendor_name,
-                            requestType="AddOutput",
-                            requestData={
-                                "name": output_name,
-                                "server": rtmp_base_url,
-                                "key": stream_key
-                            }
-                        ))
-                        
-                        logger.info(f"  ⚙️ Configuring settings for: {output_name}")
-                        ws.call(obs_requests.CallVendorRequest(
-                            vendorName=vendor_name,
-                            requestType="SetOutputSettings",
-                            requestData={
-                                "name": output_name,
-                                "settings": {
-                                    "encoder": "obs_x264",
-                                    "bitrate": 6000,
-                                    "rate_control": "CBR",
-                                    "keyint_sec": 2,
-                                    "preset": "medium",
-                                    "profile": "high"
-                                }
-                            }
-                        ))
-                        
-                        logger.info(f"  ✅ Enabling output: {output_name}")
-                        ws.call(obs_requests.CallVendorRequest(
-                            vendorName=vendor_name,
-                            requestType="EnableOutput",
-                            requestData={"name": output_name}
-                        ))
-                        
-                        success_count += 1
-                        logger.info(f"  ✅ SUCCESS: Configured {output_name}")
-                        
-                    except Exception as e:
-                        logger.error(f"  ❌ FAILED to configure {output_name}: {e}")
-
+                output_name = f"Pair {pair_name}"
+                
                 try:
                     ws.call(obs_requests.CallVendorRequest(
                         vendorName=vendor_name,
-                        requestType="SaveConfig",
-                        requestData={}
+                        requestType="AddOutput",
+                        requestData={
+                            "name": output_name,
+                            "server": rtmp_base_url,
+                            "key": stream_key
+                        }
                     ))
-                    logger.info("💾 Multi-RTMP configuration saved")
+                    
+                    ws.call(obs_requests.CallVendorRequest(
+                        vendorName=vendor_name,
+                        requestType="EnableOutput",
+                        requestData={"name": output_name}
+                    ))
+                    
+                    success_count += 1
+                    logger.info(f"Configured Multi-RTMP output: {output_name}")
+                    
                 except Exception as e:
-                    logger.warning(f"Save config failed (non-critical): {e}")
+                    logger.error(f"Failed to configure {output_name}: {e}")
 
-                ws.disconnect()
-                logger.info(f"🎯 Configured {success_count} Multi-RTMP outputs")
-                
-            except Exception as e:
-                logger.error(f"Failed to configure Multi-RTMP: {e}")
+            ws.disconnect()
+            logger.info(f"Configured {success_count} Multi-RTMP outputs")
+            
+        except Exception as e:
+            logger.error(f"Failed to configure Multi-RTMP: {e}")
 
-        return redirect(url_for("dashboard"))
+            return redirect(url_for("dashboard"))
 
-    return render_template(
+        return render_template(
         "dashboard.html",
         logged_in=True,
         lane_pairs=sort_lane_pairs(lane_pairs),
@@ -1551,38 +1469,18 @@ def regenerate_multi_rtmp():
         
         for pair in enabled_pairs:
             pair_name = pair["name"]
-            stream_key = ""
+            stream_key = pair.get("stream_key", "").strip()  # ALWAYS use stream_key field
             
-            # ENHANCED LOGGING for each pair
             logger.info(f"\n🔍 Processing {pair_name}:")
-            logger.info(f"  AutoCreate: {pair.get('autocreate', False)}")
-            logger.info(f"  Current stream_key: {pair.get('stream_key', '')[:8]}..." if pair.get('stream_key') else "  No stream_key")
-            logger.info(f"  Current youtube_live_id: {pair.get('youtube_live_id', '')}")
+            logger.info(f"  Stream key: {'YES' if stream_key else 'NO'}")
+            logger.info(f"  YouTube ID: {pair.get('youtube_live_id', '')}")
             
-            # Handle both AutoCreate AND Manual modes
-            if pair.get("autocreate"):
-                # AutoCreate mode - use YouTube API generated values
-                if pair.get("youtube_live_id") and pair.get("stream_key"):
-                    stream_key = pair["stream_key"]
-                    logger.info(f"  🤖 Using AutoCreate key: {stream_key[:8]}...")
-                else:
-                    logger.warning(f"  ❌ AutoCreate enabled but missing youtube_live_id or stream_key")
-                    failed_pairs.append(f"{pair_name} (AutoCreate: missing data)")
-            else:
-                # Manual mode - use form values
-                stream_key = pair.get("stream_key", "").strip()
-                if stream_key:
-                    logger.info(f"  ✋ Using Manual key: {stream_key[:8]}...")
-                else:
-                    logger.warning(f"  ❌ Manual mode but no stream_key provided")
-                    failed_pairs.append(f"{pair_name} (Manual: no key)")
-
             if not stream_key:
-                msg = f"❌ SKIPPED: {pair_name} has no stream key set (autocreate={pair.get('autocreate', False)})"
-                logger.warning(msg)
-                print(msg)
+                logger.warning(f"  ⏭️ Skipping {pair_name} - no stream key available")
                 failed_pairs.append(f"{pair_name} (Missing stream key)")
                 continue
+
+            logger.info(f"  📺 Using stream key: {stream_key[:8]}...")
 
             # Add output
             output_name = f"Pair {pair_name}"
@@ -1727,94 +1625,68 @@ def toggle_stream():
             except Exception as e:
                 logger.warning(f"Failed to track analytics start: {e}")
 
-            # ENHANCED: First ensure Multi-RTMP is configured
+# Configure Multi-RTMP
             try:
-                logger.info("Ensuring Multi-RTMP is configured before starting")
+                logger.info("Configuring Multi-RTMP...")
                 
-                # Check if outputs exist
-                resp = ws.call(obs_requests.CallVendorRequest(
-                    vendorName="obs-multi-rtmp",
-                    requestType="GetOutputs",
-                    requestData={}
-                ))
+                rtmp_base_url = cfg.get("youtube_rtmp_base", "rtmp://a.rtmp.youtube.com/live2")
                 
-                existing_outputs = resp.getRequestResponse().get("outputs", [])
-                logger.info(f"Found {len(existing_outputs)} existing Multi-RTMP outputs")
-                
-                # If no outputs or mismatched count, reconfigure
-                if len(existing_outputs) != len(enabled_pairs):
-                    logger.info("Multi-RTMP outputs don't match enabled pairs, reconfiguring...")
-                    
-                    # Clear existing outputs
-                    for output in existing_outputs:
-                        try:
-                            ws.call(obs_requests.CallVendorRequest(
-                                vendorName="obs-multi-rtmp",
-                                requestType="RemoveOutput",
-                                requestData={"name": output.get("name", "")}
-                            ))
-                        except:
-                            pass
-                    
-                    # Add outputs for each enabled pair
-                    rtmp_base_url = cfg.get("youtube_rtmp_base", "rtmp://a.rtmp.youtube.com/live2")
-                    configured = 0
-                    
-                    for pair in enabled_pairs:
-                        stream_key = ""
-                        
-                        # Handle both AutoCreate and Manual modes
-                        if pair.get("autocreate"):
-                            if pair.get("youtube_live_id") and pair.get("stream_key"):
-                                stream_key = pair["stream_key"]
-                        else:
-                            stream_key = pair.get("stream_key", "").strip()
-                        
-                        if stream_key:
-                            output_name = f"Pair {pair['name']}"
+                # Remove all existing outputs
+                for i in range(24):
+                    for prefix in ["Pair ", "Lane ", ""]:
+                        names = [
+                            f"{prefix}{i+1}&{i+2}",
+                            f"{prefix}{i*2+1}&{i*2+2}",
+                            f"TEST_{i+1}&{i+2}"
+                        ]
+                        for name in names:
                             try:
-                                # Add output
                                 ws.call(obs_requests.CallVendorRequest(
                                     vendorName="obs-multi-rtmp",
-                                    requestType="AddOutput",
-                                    requestData={
-                                        "name": output_name,
-                                        "server": rtmp_base_url,
-                                        "key": stream_key
-                                    }
+                                    requestType="RemoveOutput",
+                                    requestData={"name": name}
                                 ))
-                                
-                                # Enable output
-                                ws.call(obs_requests.CallVendorRequest(
-                                    vendorName="obs-multi-rtmp",
-                                    requestType="EnableOutput",
-                                    requestData={"name": output_name}
-                                ))
-                                
-                                configured += 1
-                                logger.info(f"Configured Multi-RTMP output: {output_name}")
-                            except Exception as e:
-                                logger.warning(f"Failed to configure {output_name}: {e}")
-                        else:
-                            logger.warning(f"No stream key for {pair['name']}")
+                            except:
+                                pass
+
+                # Add outputs
+                configured = 0
+                for pair in enabled_pairs:
+                    stream_key = pair.get("stream_key", "").strip()
                     
-                    logger.info(f"Configured {configured} Multi-RTMP outputs")
+                    if not stream_key:
+                        logger.warning(f"No stream key for {pair['name']}")
+                        continue
+                        
+                    output_name = f"Pair {pair['name']}"
                     
-                    # Save configuration
                     try:
                         ws.call(obs_requests.CallVendorRequest(
                             vendorName="obs-multi-rtmp",
-                            requestType="SaveConfig",
-                            requestData={}
+                            requestType="AddOutput",
+                            requestData={
+                                "name": output_name,
+                                "server": rtmp_base_url,
+                                "key": stream_key
+                            }
                         ))
+                        
+                        ws.call(obs_requests.CallVendorRequest(
+                            vendorName="obs-multi-rtmp",
+                            requestType="EnableOutput",
+                            requestData={"name": output_name}
+                        ))
+                        
+                        configured += 1
+                        logger.info(f"Configured Multi-RTMP output: {output_name}")
+                        
                     except Exception as e:
-                        logger.warning(f"SaveConfig failed: {e}")
-                else:
-                    logger.info("Multi-RTMP outputs already configured correctly")
-                    
+                        logger.warning(f"Failed to configure {output_name}: {e}")
+                
+                logger.info(f"Configured {configured} Multi-RTMP outputs")
+                
             except Exception as e:
-                logger.warning(f"Multi-RTMP configuration check failed: {e}")
-                # Continue anyway - maybe it's already configured
+                logger.error(f"Multi-RTMP configuration failed: {e}")
 
             # Start all Multi-RTMP streams
             try:
@@ -1858,17 +1730,12 @@ def toggle_stream():
                     logger.error(f"YouTube broadcast start failed: {e}")
                     message = "Streaming started but YouTube auto-start failed. Use YouTube Studio."
                 
-                return jsonify({"message": message, "streaming": True})                
-                if failed_pairs:
-                    logger.warning(f"‼️ FAILED PAIRS: {failed_pairs}")
-                    print(f"‼️ FAILED PAIRS: {failed_pairs}")
-                return jsonify({"message": "Streaming started.", "streaming": True})
+                return jsonify({"message": message, "streaming": True})
             except Exception as e:
                 ws.disconnect()
                 logger.error(f"Failed to start Multi-RTMP streaming: {e}")
                 return jsonify({"error": f"Failed to start streaming: {e}", "streaming": False}), 500
         else:
-
             # Track analytics stop
             try:
                 track_response = requests.post(
@@ -1890,20 +1757,7 @@ def toggle_stream():
                 save_streaming_status(False)
                 logger.info("Multi-RTMP streaming stopped successfully")
                 
-                # Stop YouTube broadcasts
-                logger.info("Stopping YouTube broadcasts...")
-                youtube_result = stop_all_youtube_broadcasts()
-                
-                if youtube_result.get("error"):
-                    message = f"Streaming stopped but YouTube error: {youtube_result['error']}"
-                else:
-                    stopped = youtube_result.get("stopped", 0)
-                    failed = youtube_result.get("failed", 0)
-                    message = f"Streaming stopped. {stopped} YouTube broadcasts ended."
-                    if failed > 0:
-                        message += f" ({failed} failed to stop)"
-                
-                return jsonify({"message": message, "streaming": False})
+                return jsonify({"message": "Streaming stopped.", "streaming": False})
             except Exception as e:
                 ws.disconnect()
                 logger.error(f"Failed to stop Multi-RTMP streaming: {e}")

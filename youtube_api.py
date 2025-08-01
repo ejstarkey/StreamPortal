@@ -42,92 +42,8 @@ def get_authenticated_service():
         traceback.print_exc()
         raise
 
-def create_youtube_stream(event_name, lane_pair_name):
-    """
-    Create YouTube live stream with improved error handling and debugging.
-    Returns dict with stream_key and youtube_live_id or None on failure.
-    """
-    print(f"\n[YouTube] 🚀 Starting stream creation for: {event_name} - {lane_pair_name}")
-    
-    try:
-        # Get authenticated service
-        youtube = get_authenticated_service()
-        
-        # Generate titles and descriptions
-        full_title = f"{event_name} – {lane_pair_name}"
-        stream_title = f"{full_title} Stream"
-        description = f"Live broadcast from {lane_pair_name} during {event_name}"
-        
-        print(f"[YouTube] 📝 Broadcast title: '{full_title}'")
-        print(f"[YouTube] 📝 Stream title: '{stream_title}'")
-        
-        # Step 1: Check for existing reusable broadcast
-        broadcast_id = find_or_create_broadcast(youtube, full_title, description)
-        if not broadcast_id:
-            print("[YouTube] ❌ Failed to create or find broadcast")
-            return None
-        
-        # Step 2: Check for existing reusable stream
-        stream_id, stream_key = find_or_create_stream(youtube, stream_title, description)
-        if not stream_id or not stream_key:
-            print("[YouTube] ❌ Failed to create or find stream")
-            return None
-        
-        # Step 3: Bind stream to broadcast
-        if not bind_stream_to_broadcast(youtube, broadcast_id, stream_id):
-            print("[YouTube] ❌ Failed to bind stream to broadcast")
-            # Even if binding fails, we might already be bound, so continue
-        
-        # IMPORTANT: If we're reusing a broadcast, make sure we have the bound stream's key
-        if not stream_key:
-            print("[YouTube] 🔍 Fetching stream key from bound stream...")
-            try:
-                broadcast_resp = youtube.liveBroadcasts().list(
-                    part="contentDetails",
-                    id=broadcast_id
-                ).execute()
-                
-                if broadcast_resp.get("items"):
-                    bound_stream_id = broadcast_resp["items"][0]["contentDetails"].get("boundStreamId")
-                    if bound_stream_id:
-                        stream_resp = youtube.liveStreams().list(
-                            part="cdn",
-                            id=bound_stream_id
-                        ).execute()
-                        
-                        if stream_resp.get("items"):
-                            stream_key = stream_resp["items"][0]["cdn"]["ingestionInfo"]["streamName"]
-                            print(f"[YouTube] ✅ Retrieved stream key from bound stream")
-            except Exception as e:
-                print(f"[YouTube] ⚠️ Failed to fetch stream key: {e}")
-        
-        # Success - return the details
-        youtube_url = f"https://youtube.com/live/{broadcast_id}"
-        
-        print("\n=================== ✅ STREAM CREATION SUCCESS ===================")
-        print(f"🔗 YouTube Live URL   : {youtube_url}")
-        print(f"📡 RTMP Stream Key    : {stream_key}")
-        print(f"🆔 Broadcast ID       : {broadcast_id}")
-        print(f"🆔 Stream ID          : {stream_id}")
-        print("================================================================\n")
-        
-        return {
-            "stream_key": stream_key,
-            "youtube_live_id": broadcast_id,
-            "youtube_url": youtube_url,
-            "stream_id": stream_id
-        }
-        
-    except HttpError as e:
-        error_details = e.error_details if hasattr(e, 'error_details') else 'Unknown'
-        print(f"[YouTube] ❌ YouTube API error: {e}")
-        print(f"[YouTube] ❌ Error details: {error_details}")
-        return None
-        
-    except Exception as e:
-        print(f"[YouTube] ❌ Unexpected error creating stream: {e}")
-        traceback.print_exc()
-        return None
+# REMOVED create_youtube_stream - No longer needed!
+# The app now uses create_youtube_broadcast_only which reuses existing stream keys
 
 def find_or_create_broadcast(youtube, full_title, description):
     """Find existing reusable broadcast or create new one."""
@@ -194,55 +110,44 @@ def find_or_create_broadcast(youtube, full_title, description):
         return create_new_broadcast(youtube, full_title, description)
 
 def create_new_broadcast(youtube, full_title, description):
-    """Create a new YouTube live broadcast optimized for reusability within API constraints."""
+    """Create a new YouTube live broadcast with ALL required fields to avoid manual setup."""
     try:
-        # First attempt: Try without scheduled time (ideal for reusability)
-        print("[YouTube] 📤 Attempting to create perpetual broadcast (no schedule)...")
+        from datetime import datetime, timedelta, timezone
         
+        # Create a broadcast that's ready to go live immediately
         broadcast_body = {
             "snippet": {
                 "title": full_title,
-                "description": description
-                # No scheduledStartTime - makes it perpetually reusable
+                "description": description,
+                # Set scheduled time to 1 minute from now (can go live immediately)
+                "scheduledStartTime": (datetime.now(timezone.utc) + timedelta(minutes=1)).isoformat().replace("+00:00", "Z")
             },
             "status": {
-                "privacyStatus": "unlisted"  # Unlisted for embedding
+                "privacyStatus": "unlisted",  # or "public" if you prefer
+                "selfDeclaredMadeForKids": False,  # REQUIRED - prevents manual prompt
+                "madeForKids": False  # REQUIRED - prevents manual prompt
             },
             "contentDetails": {
                 "monitorStream": {
-                    "enableMonitorStream": False
-                }
+                    "enableMonitorStream": True,  # Enable monitor stream
+                    "broadcastStreamDelayMs": 0   # No delay
+                },
+                "enableDvr": True,           # Enable DVR
+                "enableContentEncryption": False,
+                "enableEmbed": True,         # Allow embedding
+                "recordFromStart": True,     # Record from start
+                "startWithSlate": False,     # Don't start with slate
+                "enableAutoStart": True,     # AUTO START - This is key!
+                "enableAutoStop": False,     # Don't auto stop
+                "enableClosedCaptions": False,
+                "closedCaptionsType": "closedCaptionsDisabled",
+                "enableLowLatency": False,   # Standard latency
+                "latencyPreference": "normal",
+                "projection": "rectangular"   # Standard projection
             }
         }
         
-        try:
-            response = youtube.liveBroadcasts().insert(
-                part="snippet,status,contentDetails",
-                body=broadcast_body
-            ).execute()
-            
-            broadcast_id = response["id"]
-            print(f"[YouTube] ✅ Created perpetual broadcast: {broadcast_id}")
-            return broadcast_id
-            
-        except HttpError as e:
-            if "scheduledStartTimeRequired" in str(e):
-                print("[YouTube] ⚠️ Channel requires scheduled time - using reusable approach...")
-                # Fall through to scheduled approach
-            else:
-                raise e
-        
-        # Second attempt: Channel requires scheduled time, so use a very long-lived one
-        from datetime import datetime, timedelta, timezone
-        
-        # Schedule for 6 months in future - long enough to be very reusable
-        # but not so far that it seems unrealistic
-        future_time = (datetime.now(timezone.utc) + timedelta(days=180)).isoformat().replace("+00:00", "Z")
-        
-        broadcast_body["snippet"]["scheduledStartTime"] = future_time
-        
-        print(f"[YouTube] 📅 Creating long-lived broadcast scheduled for: {future_time}")
-        print("[YouTube] 💡 This will be reusable for ~6 months without API quota burn")
+        print(f"[YouTube] 📤 Creating broadcast with auto-start enabled...")
         
         response = youtube.liveBroadcasts().insert(
             part="snippet,status,contentDetails",
@@ -250,7 +155,20 @@ def create_new_broadcast(youtube, full_title, description):
         ).execute()
         
         broadcast_id = response["id"]
-        print(f"[YouTube] ✅ Created long-lived broadcast: {broadcast_id}")
+        print(f"[YouTube] ✅ Created broadcast {broadcast_id} with all required fields")
+        
+        # Immediately transition to testing/ready if possible
+        try:
+            # Try to transition to ready state
+            youtube.liveBroadcasts().transition(
+                part="status",
+                id=broadcast_id,
+                broadcastStatus="testing"
+            ).execute()
+            print(f"[YouTube] ✅ Transitioned broadcast to testing state")
+        except Exception as e:
+            print(f"[YouTube] ℹ️ Could not transition to testing: {e}")
+            # This is OK - it might need a bound stream first
         
         return broadcast_id
         
@@ -260,74 +178,37 @@ def create_new_broadcast(youtube, full_title, description):
             print(f"[YouTube] ❌ Error details: {e.error_details}")
         return None
 
-def find_or_create_stream(youtube, stream_title, description):
-    """Find existing reusable stream or create new one."""
-    print(f"[YouTube] 🔍 Searching for existing stream: '{stream_title}'")
-    
+def reschedule_if_needed(youtube, broadcast, broadcast_id):
+    """Reschedule broadcast if it's scheduled in the past."""
     try:
-        # Search for existing streams
-        response = youtube.liveStreams().list(
-            part="id,snippet,cdn,status",
-            mine=True,
-            maxResults=50
-        ).execute()
-        
-        # Check each stream for reusability
-        for stream in response.get("items", []):
-            if stream["snippet"]["title"].strip() == stream_title.strip():
-                status = stream["status"]["streamStatus"]
-                stream_id = stream["id"]
+        scheduled_time = broadcast["snippet"].get("scheduledStartTime")
+        if scheduled_time:
+            from datetime import datetime, timedelta, timezone
+            scheduled_dt = datetime.fromisoformat(scheduled_time.replace("Z", "+00:00"))
+            now = datetime.now(timezone.utc)
+            
+            if scheduled_dt < now:
+                # Reschedule to 2 minutes from now
+                new_time = (now + timedelta(minutes=2)).isoformat().replace("+00:00", "Z")
                 
-                print(f"[YouTube] 🔍 Found existing stream {stream_id} with status: {status}")
+                update_body = {
+                    "id": broadcast_id,
+                    "snippet": broadcast["snippet"]
+                }
+                update_body["snippet"]["scheduledStartTime"] = new_time
                 
-                # Check if stream is reusable
-                if status in ["created", "ready"]:
-                    stream_key = stream["cdn"]["ingestionInfo"]["streamName"]
-                    print(f"[YouTube] ✅ Reusing stream: {stream_id}")
-                    return stream_id, stream_key
-                else:
-                    print(f"[YouTube] ⚠️ Stream {stream_id} not reusable (status: {status})")
+                youtube.liveBroadcasts().update(
+                    part="snippet",
+                    body=update_body
+                ).execute()
+                
+                print(f"[YouTube] 🔄 Rescheduled broadcast {broadcast_id} to {new_time}")
         
-        # No reusable stream found, create new one
-        print("[YouTube] 🆕 Creating new stream...")
-        return create_new_stream(youtube, stream_title, description)
+        return True
         
-    except HttpError as e:
-        print(f"[YouTube] ❌ Error searching for streams: {e}")
-        return create_new_stream(youtube, stream_title, description)
-
-def create_new_stream(youtube, stream_title, description):
-    """Create a new YouTube live stream."""
-    try:
-        stream_body = {
-            "snippet": {
-                "title": stream_title,
-                "description": description
-            },
-            "cdn": {
-                "ingestionType": "rtmp",
-                "resolution": "1080p",
-                "frameRate": "30fps"
-            }
-        }
-        
-        print(f"[YouTube] 📤 Creating stream with body: {json.dumps(stream_body, indent=2)}")
-        
-        response = youtube.liveStreams().insert(
-            part="snippet,cdn",
-            body=stream_body
-        ).execute()
-        
-        stream_id = response["id"]
-        stream_key = response["cdn"]["ingestionInfo"]["streamName"]
-        print(f"[YouTube] ✅ Created new stream: {stream_id}")
-        return stream_id, stream_key
-        
-    except HttpError as e:
-        print(f"[YouTube] ❌ Failed to create stream: {e}")
-        if hasattr(e, 'error_details'):
-            print(f"[YouTube] ❌ Error details: {e.error_details}")
-        return None, None
+    except Exception as e:
+        print(f"[YouTube] ⚠️ Failed to reschedule broadcast {broadcast_id}: {e}")
+        return True  # Continue anyway
 
 def bind_stream_to_broadcast(youtube, broadcast_id, stream_id):
     """Bind a stream to a broadcast."""
@@ -406,36 +287,6 @@ def make_broadcast_ready_for_streaming(youtube, broadcast_id):
     except Exception as e:
         print(f"[YouTube] ❌ Failed to make broadcast ready: {e}")
         return False
-    """Reschedule broadcast if it's scheduled in the past."""
-    try:
-        scheduled_time = broadcast["snippet"].get("scheduledStartTime")
-        if scheduled_time:
-            from datetime import datetime, timedelta, timezone
-            scheduled_dt = datetime.fromisoformat(scheduled_time.replace("Z", "+00:00"))
-            now = datetime.now(timezone.utc)
-            
-            if scheduled_dt < now:
-                # Reschedule to 2 minutes from now
-                new_time = (now + timedelta(minutes=2)).isoformat().replace("+00:00", "Z")
-                
-                update_body = {
-                    "id": broadcast_id,
-                    "snippet": broadcast["snippet"]
-                }
-                update_body["snippet"]["scheduledStartTime"] = new_time
-                
-                youtube.liveBroadcasts().update(
-                    part="snippet",
-                    body=update_body
-                ).execute()
-                
-                print(f"[YouTube] 🔄 Rescheduled broadcast {broadcast_id} to {new_time}")
-        
-        return True
-        
-    except Exception as e:
-        print(f"[YouTube] ⚠️ Failed to reschedule broadcast {broadcast_id}: {e}")
-        return True  # Continue anyway
 
 def test_authentication():
     """Test YouTube API authentication and permissions."""
@@ -555,33 +406,10 @@ def cleanup_old_broadcasts(youtube=None, days_old=7):
     except Exception as e:
         print(f"[YouTube] ❌ Failed to cleanup old broadcasts: {e}")
 
-# Test function to verify everything works
-def test_stream_creation():
-    """Test function to create a test stream."""
-    print("[YouTube] 🧪 Testing stream creation...")
-    
-    # Test authentication first
-    if not test_authentication():
-        return False
-    
-    # Try to create a test stream
-    result = create_youtube_stream("TEST_EVENT", "Test Lane Pair")
-    
-    if result:
-        print("[YouTube] ✅ Test stream creation successful!")
-        print(f"Stream Key: {result['stream_key']}")
-        print(f"YouTube URL: {result['youtube_url']}")
-        return True
-    else:
-        print("[YouTube] ❌ Test stream creation failed!")
-        return False
-
-# Add this complete function to youtube_api.py
-
 def start_enabled_youtube_broadcasts():
     """Start YouTube broadcasts for all ENABLED streams (AutoCreate or Manual)"""
     import time
-    logger.info("Starting YouTube broadcasts for enabled streams...")
+    print("Starting YouTube broadcasts for enabled streams...")
     
     try:
         youtube = get_authenticated_service()
@@ -595,18 +423,18 @@ def start_enabled_youtube_broadcasts():
         
         # Process ONLY enabled pairs
         enabled_pairs = [p for p in config.get('lane_pairs', []) if p.get('enabled')]
-        logger.info(f"Found {len(enabled_pairs)} enabled lane pairs")
+        print(f"Found {len(enabled_pairs)} enabled lane pairs")
         
         for pair in enabled_pairs:
             pair_name = pair['name']
             youtube_id = pair.get('youtube_live_id', '').strip()
             
-            # Skip if no YouTube ID (regardless of AutoCreate status)
+            # Skip if no YouTube ID
             if not youtube_id:
-                logger.warning(f"{pair_name}: No YouTube ID configured")
+                print(f"{pair_name}: No YouTube ID configured")
                 continue
             
-            logger.info(f"{pair_name}: Checking broadcast {youtube_id} (AutoCreate={pair.get('autocreate', False)})")
+            print(f"{pair_name}: Processing broadcast {youtube_id}")
             
             try:
                 # Get broadcast status
@@ -616,7 +444,7 @@ def start_enabled_youtube_broadcasts():
                 ).execute()
                 
                 if not broadcast.get('items'):
-                    logger.error(f"{pair_name}: Broadcast {youtube_id} not found on YouTube")
+                    print(f"{pair_name}: Broadcast {youtube_id} not found on YouTube")
                     failed_count += 1
                     continue
                 
@@ -624,48 +452,82 @@ def start_enabled_youtube_broadcasts():
                 status = item['status']['lifeCycleStatus']
                 title = item['snippet']['title']
                 
-                logger.info(f"{pair_name}: '{title}' is {status}")
+                print(f"{pair_name}: '{title}' is {status}")
                 
                 if status == 'ready':
-                    # Transition to live
-                    logger.info(f"{pair_name}: Transitioning to live...")
-                    youtube.liveBroadcasts().transition(
-                        broadcastId=youtube_id,
-                        id=youtube_id,
-                        part="id,status",
-                        broadcastStatus="live"
-                    ).execute()
+                    # First transition to testing
+                    print(f"{pair_name}: Transitioning to testing...")
+                    try:
+                        youtube.liveBroadcasts().transition(
+                            id=youtube_id,
+                            part="id,status",
+                            broadcastStatus="testing"
+                        ).execute()
+                        
+                        # Wait a moment for the transition
+                        time.sleep(2)
+                        
+                        # Now transition to live
+                        print(f"{pair_name}: Transitioning to live...")
+                        youtube.liveBroadcasts().transition(
+                            id=youtube_id,
+                            part="id,status",
+                            broadcastStatus="live"
+                        ).execute()
+                        
+                        started_count += 1
+                        print(f"✅ {pair_name}: Successfully started streaming")
+                        
+                    except Exception as e:
+                        print(f"{pair_name}: Failed to transition: {e}")
+                        if "redundantTransition" in str(e):
+                            print(f"{pair_name}: Already in target state")
+                            already_live += 1
+                        else:
+                            failed_count += 1
                     
-                    started_count += 1
-                    logger.info(f"✅ {pair_name}: Successfully started streaming")
-                    
-                    # Small delay to avoid rate limiting
-                    time.sleep(2)
-                    
+                elif status == 'testing':
+                    # Can go directly to live from testing
+                    print(f"{pair_name}: Transitioning from testing to live...")
+                    try:
+                        youtube.liveBroadcasts().transition(
+                            id=youtube_id,
+                            part="id,status",
+                            broadcastStatus="live"
+                        ).execute()
+                        
+                        started_count += 1
+                        print(f"✅ {pair_name}: Successfully started streaming")
+                        
+                    except Exception as e:
+                        print(f"{pair_name}: Failed to transition: {e}")
+                        failed_count += 1
+                        
                 elif status == 'live':
-                    logger.info(f"✅ {pair_name}: Already live")
+                    print(f"✅ {pair_name}: Already live")
                     already_live += 1
                     
                 elif status == 'complete':
-                    logger.warning(f"{pair_name}: Broadcast already completed")
+                    print(f"{pair_name}: Broadcast already completed")
                     failed_count += 1
                     
                 else:
-                    logger.warning(f"{pair_name}: Cannot start - status is {status}")
-                    logger.warning(f"   Stream might not be active yet. Wait 10-30 seconds after OBS starts.")
+                    print(f"{pair_name}: Cannot start - status is {status}")
+                    print(f"   Stream might not be active yet. Wait longer after OBS starts.")
                     failed_count += 1
                     
+                # Small delay between broadcasts to avoid rate limiting
+                time.sleep(1)
+                    
             except Exception as e:
-                logger.error(f"{pair_name}: Failed to start broadcast: {e}")
-                if "not receiving video" in str(e):
-                    logger.error(f"   OBS might not be streaming to this broadcast yet")
+                print(f"{pair_name}: Failed to process broadcast: {e}")
                 failed_count += 1
         
-        logger.info(f"YouTube Broadcast Summary:")
-        logger.info(f"  Started: {started_count}")
-        logger.info(f"  Already Live: {already_live}")
-        logger.info(f"  Failed: {failed_count}")
-        logger.info(f"  Total Enabled: {len(enabled_pairs)}")
+        print(f"\nYouTube Broadcast Summary:")
+        print(f"  Started: {started_count}")
+        print(f"  Already Live: {already_live}")
+        print(f"  Failed: {failed_count}")
+        print(f"  Total Enabled: {len(enabled_pairs)}")
         
         return {
             "started": started_count,
@@ -675,9 +537,162 @@ def start_enabled_youtube_broadcasts():
         }
         
     except Exception as e:
-        logger.error(f"Failed to start YouTube broadcasts: {e}")
+        print(f"Failed to start YouTube broadcasts: {e}")
         return {"error": str(e), "started": 0, "failed": 0}
+
+def create_youtube_broadcast_only(event_name, lane_pair_name, existing_stream_key):
+    """
+    Create ONLY a YouTube broadcast (not a stream) and bind it to an existing stream.
+    This saves API quota by reusing existing stream keys.
+    
+    Args:
+        event_name: Name of the event
+        lane_pair_name: Lane pair identifier (e.g. "1&2")
+        existing_stream_key: The stream key to reuse (from dashboard)
+    
+    Returns:
+        dict with youtube_live_id and youtube_url, or None on failure
+    """
+    print(f"\n[YouTube] 🚀 Creating broadcast ONLY for: {event_name} - {lane_pair_name}")
+    print(f"[YouTube] 🔑 Using existing stream key: {existing_stream_key[:8]}...")
+    
+    try:
+        # Get authenticated service
+        youtube = get_authenticated_service()
+        
+        # Generate title and description
+        full_title = f"{event_name} – {lane_pair_name}"
+        description = f"Live broadcast from {lane_pair_name} during {event_name}"
+        
+        print(f"[YouTube] 📝 Broadcast title: '{full_title}'")
+        
+        # Step 1: Find or create broadcast
+        broadcast_id = find_or_create_broadcast(youtube, full_title, description)
+        if not broadcast_id:
+            print("[YouTube] ❌ Failed to create or find broadcast")
+            return None
+        
+        # Step 2: Find the existing stream by key
+        print(f"[YouTube] 🔍 Finding existing stream with key: {existing_stream_key[:8]}...")
+        stream_id = find_stream_by_key(youtube, existing_stream_key)
+        
+        if not stream_id:
+            print(f"[YouTube] ❌ Could not find stream with key {existing_stream_key[:8]}...")
+            return None
+        
+        print(f"[YouTube] ✅ Found existing stream: {stream_id}")
+        
+        # Step 3: Bind existing stream to broadcast
+        if not bind_stream_to_broadcast(youtube, broadcast_id, stream_id):
+            print("[YouTube] ❌ Failed to bind stream to broadcast")
+            # Continue anyway - might already be bound
+        
+        # Success - return the details
+        youtube_url = f"https://youtube.com/live/{broadcast_id}"
+        
+        print("\n=================== ✅ BROADCAST CREATION SUCCESS ===================")
+        print(f"🔗 YouTube Live URL   : {youtube_url}")
+        print(f"🔑 Reused Stream Key  : {existing_stream_key[:8]}...")
+        print(f"🆔 Broadcast ID       : {broadcast_id}")
+        print(f"🆔 Stream ID          : {stream_id}")
+        print("====================================================================\n")
+        
+        return {
+            "stream_key": existing_stream_key,  # Return the same key we were given
+            "youtube_live_id": broadcast_id,
+            "youtube_url": youtube_url,
+            "stream_id": stream_id
+        }
+        
+    except HttpError as e:
+        error_details = e.error_details if hasattr(e, 'error_details') else 'Unknown'
+        print(f"[YouTube] ❌ YouTube API error: {e}")
+        print(f"[YouTube] ❌ Error details: {error_details}")
+        return None
+        
+    except Exception as e:
+        print(f"[YouTube] ❌ Unexpected error creating broadcast: {e}")
+        traceback.print_exc()
+        return None
+
+def find_stream_by_key(youtube, stream_key):
+    """
+    Find an existing stream by its stream key.
+    
+    Args:
+        youtube: Authenticated YouTube service
+        stream_key: The stream key to search for
+    
+    Returns:
+        stream_id if found, None otherwise
+    """
+    try:
+        # List all streams
+        response = youtube.liveStreams().list(
+            part="id,cdn,snippet",
+            mine=True,
+            maxResults=50
+        ).execute()
+        
+        # Search through streams for matching key
+        for stream in response.get("items", []):
+            if stream["cdn"]["ingestionInfo"]["streamName"] == stream_key:
+                stream_id = stream["id"]
+                stream_title = stream["snippet"]["title"]
+                print(f"[YouTube] ✅ Found stream '{stream_title}' with matching key")
+                return stream_id
+        
+        # If we have more pages, check them too
+        while "nextPageToken" in response:
+            response = youtube.liveStreams().list(
+                part="id,cdn,snippet",
+                mine=True,
+                maxResults=50,
+                pageToken=response["nextPageToken"]
+            ).execute()
+            
+            for stream in response.get("items", []):
+                if stream["cdn"]["ingestionInfo"]["streamName"] == stream_key:
+                    stream_id = stream["id"]
+                    stream_title = stream["snippet"]["title"]
+                    print(f"[YouTube] ✅ Found stream '{stream_title}' with matching key")
+                    return stream_id
+        
+        print(f"[YouTube] ❌ No stream found with key {stream_key[:8]}...")
+        return None
+        
+    except Exception as e:
+        print(f"[YouTube] ❌ Error searching for stream: {e}")
+        return None
+
+# Test function to verify everything works
+def test_broadcast_creation():
+    """Test function to create a test broadcast with existing stream key."""
+    print("[YouTube] 🧪 Testing broadcast creation with existing stream key...")
+    
+    # Test authentication first
+    if not test_authentication():
+        return False
+    
+    # You would need to provide an existing stream key for testing
+    test_stream_key = input("Enter an existing stream key to test with: ").strip()
+    
+    if not test_stream_key:
+        print("[YouTube] ❌ No stream key provided")
+        return False
+    
+    # Try to create a test broadcast
+    result = create_youtube_broadcast_only("TEST_EVENT", "Test Lane Pair", test_stream_key)
+    
+    if result:
+        print("[YouTube] ✅ Test broadcast creation successful!")
+        print(f"Stream Key: {result['stream_key']}")
+        print(f"YouTube URL: {result['youtube_url']}")
+        return True
+    else:
+        print("[YouTube] ❌ Test broadcast creation failed!")
+        return False
 
 if __name__ == "__main__":
     # Run tests when called directly
-    test_stream_creation()
+    test_broadcast_creation()
